@@ -35,7 +35,7 @@ import { Cipher } from 'n8n-core';
 import type { InstanceSettings } from 'n8n-core';
 import * as utils from 'n8n-workflow';
 import { nanoid } from 'nanoid';
-import fsp from 'node:fs/promises';
+import * as fsp from 'node:fs/promises';
 
 import { SourceControlImportService } from '@/modules/source-control.ee/source-control-import.service.ee';
 import { SourceControlContextFactory } from '@/modules/source-control.ee/source-control-context.factory';
