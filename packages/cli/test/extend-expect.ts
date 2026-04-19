@@ -1,3 +1,5 @@
+import { expect as jestGlobalsExpect } from '@jest/globals';
+
 const isMockFunction = (value: unknown): value is jest.Mock =>
 	typeof value === 'function' && 'mock' in value && Array.isArray((value as jest.Mock).mock.calls);
 
@@ -26,7 +28,7 @@ const matchesThrownError = (thrown: unknown, expected?: unknown) => {
 	return false;
 };
 
-expect.extend({
+const legacyMatchers = {
 	toBeCalled(this: jest.MatcherContext, received: unknown) {
 		if (!isMockFunction(received)) {
 			return {
@@ -137,4 +139,10 @@ expect.extend({
 				: () => `Expected ${actual} not to be a set containing ${expectedElements}`,
 		};
 	},
-});
+};
+
+expect.extend(legacyMatchers);
+
+if (jestGlobalsExpect !== expect) {
+	jestGlobalsExpect.extend(legacyMatchers);
+}
