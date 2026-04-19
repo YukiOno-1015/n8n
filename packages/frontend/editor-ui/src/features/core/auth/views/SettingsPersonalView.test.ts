@@ -11,6 +11,8 @@ import { useUIStore } from '@/app/stores/ui.store';
 import { useCloudPlanStore } from '@/app/stores/cloudPlan.store';
 import { useSSOStore } from '@/features/settings/sso/sso.store';
 import { UserManagementAuthenticationMethod } from '@/Interface';
+import { useRootStore } from '@n8n/stores/useRootStore';
+import { LOCAL_STORAGE_LOCALE } from '@/app/constants/localStorage';
 
 let pinia: ReturnType<typeof createPinia>;
 let settingsStore: ReturnType<typeof useSettingsStore>;
@@ -18,6 +20,7 @@ let ssoStore: ReturnType<typeof useSSOStore>;
 let usersStore: ReturnType<typeof useUsersStore>;
 let uiStore: ReturnType<typeof useUIStore>;
 let cloudPlanStore: ReturnType<typeof useCloudPlanStore>;
+let rootStore: ReturnType<typeof useRootStore>;
 let server: ReturnType<typeof setupServer>;
 
 const renderComponent = createComponentRenderer(SettingsPersonalView);
@@ -48,6 +51,8 @@ describe('SettingsPersonalView', () => {
 		usersStore = useUsersStore(pinia);
 		uiStore = useUIStore(pinia);
 		cloudPlanStore = useCloudPlanStore(pinia);
+		rootStore = useRootStore(pinia);
+		globalThis.localStorage.removeItem(LOCAL_STORAGE_LOCALE);
 
 		usersStore.usersById[currentUser.id] = currentUser;
 		usersStore.currentUserId = currentUser.id;
@@ -85,10 +90,10 @@ describe('SettingsPersonalView', () => {
 		});
 
 		it('should enable save button when theme is changed', async () => {
-			const { getByTestId, getByPlaceholderText, findByText } = renderComponent({ pinia });
+			const { getByTestId, findByText } = renderComponent({ pinia });
 			await waitAllPromises();
 
-			getByPlaceholderText('Select').click();
+			getByTestId('theme-select').click();
 			const darkThemeOption = await findByText('Dark theme');
 			darkThemeOption.click();
 
@@ -97,10 +102,10 @@ describe('SettingsPersonalView', () => {
 		});
 
 		it('should not update theme after changing the selected theme', async () => {
-			const { getByPlaceholderText, findByText } = renderComponent({ pinia });
+			const { getByTestId, findByText } = renderComponent({ pinia });
 			await waitAllPromises();
 
-			getByPlaceholderText('Select').click();
+			getByTestId('theme-select').click();
 			const darkThemeOption = await findByText('Dark theme');
 			darkThemeOption.click();
 
@@ -112,10 +117,10 @@ describe('SettingsPersonalView', () => {
 			vi.spyOn(usersStore, 'updateUser').mockReturnValue(
 				Promise.resolve({ id: '123', isPending: false }),
 			);
-			const { getByPlaceholderText, findByText, getByTestId } = renderComponent({ pinia });
+			const { findByText, getByTestId } = renderComponent({ pinia });
 			await waitAllPromises();
 
-			getByPlaceholderText('Select').click();
+			getByTestId('theme-select').click();
 			const darkThemeOption = await findByText('Dark theme');
 			darkThemeOption.click();
 
@@ -126,6 +131,27 @@ describe('SettingsPersonalView', () => {
 			await waitAllPromises();
 
 			expect(uiStore.theme).toBe('dark');
+		});
+	});
+
+	describe('when changing language', () => {
+		it('should persist selected language in root store and clear override if equal to instance default', async () => {
+			rootStore.setDefaultLocale('de');
+			globalThis.localStorage.setItem(LOCAL_STORAGE_LOCALE, 'de');
+
+			const { getByTestId, findByText } = renderComponent({ pinia });
+			await waitAllPromises();
+
+			getByTestId('language-select').click();
+			const englishOption = await findByText('English');
+			englishOption.click();
+
+			await waitAllPromises();
+			getByTestId('save-settings-button').click();
+			await waitAllPromises();
+
+			expect(rootStore.defaultLocale).toBe('en');
+			expect(globalThis.localStorage.getItem(LOCAL_STORAGE_LOCALE)).toBeNull();
 		});
 	});
 

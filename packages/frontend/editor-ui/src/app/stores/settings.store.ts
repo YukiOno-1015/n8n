@@ -18,6 +18,7 @@ import type { IDataObject, WorkflowSettings } from 'n8n-workflow';
 import { defineStore } from 'pinia';
 import { useRootStore } from '@n8n/stores/useRootStore';
 import { makeRestApiRequest } from '@n8n/rest-api-client';
+import { getStoredLocaleOverride } from '@/app/utils/userLocale';
 
 export const useSettingsStore = defineStore(STORES.SETTINGS, () => {
 	const initialized = ref(false);
@@ -255,6 +256,11 @@ export const useSettingsStore = defineStore(STORES.SETTINGS, () => {
 
 		setSettings(fetchedSettings);
 		rootStore.setDefaultLocale(fetchedSettings.defaultLocale);
+
+		const localeOverride = getStoredLocaleOverride();
+		if (localeOverride) {
+			rootStore.setDefaultLocale(localeOverride);
+		}
 
 		// Set MFA enforced state even for public settings mode
 		// as it is needed to determine if the MFA setup page should be shown
