@@ -12,7 +12,7 @@ env:
 
 jobs:
   coverage:
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: blacksmith-8vcpu-ubuntu-2404
     name: Coverage Tests
 
     steps:

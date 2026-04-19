@@ -25,7 +25,7 @@ jobs:
             test-cmd: pnpm test:sqlite
             migration-cmd: pnpm test:sqlite:migrations
           - name: Postgres 16
-            runner: blacksmith-4vcpu-ubuntu-2204
+            runner: blacksmith-4vcpu-ubuntu-2404
             test-cmd: pnpm test:postgres:integration:tc
             migration-cmd: pnpm test:postgres:migrations:tc
             TEST_IMAGE_POSTGRES: 'postgres:16'

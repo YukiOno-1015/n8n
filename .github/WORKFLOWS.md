@@ -490,9 +490,9 @@ Team ownership mappings in `CODEOWNERS`:
 | `ubuntu-slim`                       | 1    | Gate jobs (required-checks) |
 | `ubuntu-latest`                     | 2    | Simple jobs, fork PR E2E    |
 | `blacksmith-2vcpu-ubuntu-2404`      | 2    | Standard builds, E2E shards |
-| `blacksmith-4vcpu-ubuntu-2204`      | 4    | Unit tests, typecheck, lint |
-| `blacksmith-8vcpu-ubuntu-2204`      | 8    | E2E coverage (weekly)       |
-| `blacksmith-4vcpu-ubuntu-2204-arm`  | 4    | ARM64 Docker builds         |
+| `blacksmith-4vcpu-ubuntu-2404`      | 4    | Unit tests, typecheck, lint |
+| `blacksmith-8vcpu-ubuntu-2404`      | 8    | E2E coverage (weekly)       |
+| `blacksmith-4vcpu-ubuntu-2404-arm`  | 4    | ARM64 Docker builds         |
 
 ### Selection Guidelines
 
@@ -502,9 +502,9 @@ Team ownership mappings in `CODEOWNERS`:
 
 **`blacksmith-2vcpu-ubuntu-2404`** - Initial build/install (benefits from Blacksmith caching), database integration tests (I/O bound), Chromatic/Storybook builds
 
-**`blacksmith-4vcpu-ubuntu-2204`** - Unit tests (parallelized), linting (parallel file processing), typechecking (CPU-intensive), E2E test shards
+**`blacksmith-4vcpu-ubuntu-2404`** - Unit tests (parallelized), linting (parallel file processing), typechecking (CPU-intensive), E2E test shards
 
-**`blacksmith-8vcpu-ubuntu-2204`** - Heavy parallel workloads, full E2E coverage runs
+**`blacksmith-8vcpu-ubuntu-2404`** - Heavy parallel workloads, full E2E coverage runs
 
 ### Runner Provider Toggle
 

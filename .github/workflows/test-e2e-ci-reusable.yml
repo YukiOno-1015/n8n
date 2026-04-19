@@ -43,7 +43,7 @@ jobs:
   prepare:
     name: 'Prepare E2E'
     if: ${{ !github.event.pull_request.head.repo.fork }}
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       packages: write
       contents: read
