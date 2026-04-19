@@ -1,4 +1,4 @@
-name: 'Test: DB Integration'
+name: "Test: DB Integration"
 
 on:
   workflow_call:
@@ -6,10 +6,10 @@ on:
       ref:
         required: false
         type: string
-        default: ''
+        default: ""
 
 env:
-  NODE_OPTIONS: '--max-old-space-size=6144'
+  NODE_OPTIONS: "--max-old-space-size=6144"
 
 jobs:
   test:
@@ -28,7 +28,7 @@ jobs:
             runner: blacksmith-4vcpu-ubuntu-2404
             test-cmd: pnpm test:postgres:integration:tc
             migration-cmd: pnpm test:postgres:migrations:tc
-            TEST_IMAGE_POSTGRES: 'postgres:16'
+            TEST_IMAGE_POSTGRES: "postgres:16"
     env:
       TEST_IMAGE_POSTGRES: ${{ matrix.TEST_IMAGE_POSTGRES }}
     steps:
@@ -44,6 +44,7 @@ jobs:
 
       - name: Rebuild sqlite3 native bindings
         if: matrix.name == 'SQLite Pooled'
+        working-directory: packages/cli
         run: pnpm rebuild sqlite3
 
       - name: Run Tests
