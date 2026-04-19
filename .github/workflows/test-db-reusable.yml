@@ -22,7 +22,7 @@ jobs:
         include:
           - name: SQLite Pooled
             runner: ubuntu-24.04
-            test-cmd: pnpm test:sqlite
+            test-cmd: pnpm test:sqlite --runInBand
             migration-cmd: pnpm test:sqlite:migrations
           - name: Postgres 16
             runner: blacksmith-4vcpu-ubuntu-2404
