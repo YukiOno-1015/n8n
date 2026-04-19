@@ -51,10 +51,35 @@ jobs:
         if: matrix.name == 'SQLite Pooled'
         working-directory: packages/cli
         run: |
-          node -e "require('sqlite3'); require(require.resolve('sqlite3', { paths: [require('path').resolve(process.cwd(), '../@n8n/db')] }))" || (
-            pnpm add sqlite3@5.1.7 --no-save && \
-            (cd ../@n8n/db && pnpm add sqlite3@5.1.7 --no-save) && \
-            node -e "require('sqlite3'); require(require.resolve('sqlite3', { paths: [require('path').resolve(process.cwd(), '../@n8n/db')] }))"
+          cat > /tmp/check-sqlite-pooled.js <<'NODE'
+          const { DataSource } = require('@n8n/typeorm');
+
+          (async () => {
+            const ds = new DataSource({
+              type: 'sqlite-pooled',
+              database: ':memory:',
+              poolSize: 1,
+              enableWAL: false,
+              acquireTimeout: 1000,
+              destroyTimeout: 1000,
+              entities: [],
+              subscribers: [],
+              migrations: [],
+            });
+
+            await ds.initialize();
+            await ds.destroy();
+            console.log('sqlite-pooled initialization OK');
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+          node /tmp/check-sqlite-pooled.js || (
+            pnpm rebuild sqlite3 --config.build-from-source=true && \
+            (cd ../.. && pnpm rebuild sqlite3 --config.build-from-source=true) && \
+            node /tmp/check-sqlite-pooled.js
           )
 
       - name: Run Tests
