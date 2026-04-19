@@ -42,6 +42,10 @@ jobs:
       - name: Pre-pull Test Container Images
         run: pnpm tsx packages/testing/containers/pull-test-images.ts || true
 
+      - name: Rebuild sqlite3 native bindings
+        if: matrix.name == 'SQLite Pooled'
+        run: pnpm rebuild sqlite3
+
       - name: Run Tests
         working-directory: packages/cli
         run: ${{ matrix.test-cmd }}
