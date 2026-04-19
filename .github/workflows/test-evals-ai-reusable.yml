@@ -35,7 +35,7 @@ on:
 jobs:
   evals:
     name: Run ${{ inputs.suite }} Evaluations
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       N8N_AI_ANTHROPIC_KEY: ${{ secrets.EVALS_ANTHROPIC_KEY }}
       LANGSMITH_TRACING: true

@@ -336,7 +336,7 @@ test-workflows-pr-comment.yml
 
 | Aspect             | Internal PR                      | Fork PR                 |
 |--------------------|----------------------------------|-------------------------|
-| E2E Runner         | `blacksmith-2vcpu-ubuntu-2404`   | `ubuntu-latest`         |
+| E2E Runner         | `ubuntu-24.04`   | `ubuntu-latest`         |
 | E2E Mode           | `docker-build` (multi-main)      | `local` (SQLite)        |
 | E2E Shards         | 14 + 2                           | 6 + 2                   |
 | Test Command       | `test:container:multi-main:*`    | `test:local:*`          |
@@ -489,7 +489,7 @@ Team ownership mappings in `CODEOWNERS`:
 |-------------------------------------|------|-----------------------------|
 | `ubuntu-slim`                       | 1    | Gate jobs (required-checks) |
 | `ubuntu-latest`                     | 2    | Simple jobs, fork PR E2E    |
-| `blacksmith-2vcpu-ubuntu-2404`      | 2    | Standard builds, E2E shards |
+| `ubuntu-24.04`      | 2    | Standard builds, E2E shards |
 | `blacksmith-4vcpu-ubuntu-2404`      | 4    | Unit tests, typecheck, lint |
 | `blacksmith-8vcpu-ubuntu-2404`      | 8    | E2E coverage (weekly)       |
 | `blacksmith-4vcpu-ubuntu-2404-arm`  | 4    | ARM64 Docker builds         |
@@ -500,7 +500,7 @@ Team ownership mappings in `CODEOWNERS`:
 
 **`ubuntu-latest`** - Simple build verification, scheduled maintenance, PR comment handlers, release tagging, Docker manifest creation, any job where speed is not critical
 
-**`blacksmith-2vcpu-ubuntu-2404`** - Initial build/install (benefits from Blacksmith caching), database integration tests (I/O bound), Chromatic/Storybook builds
+**`ubuntu-24.04`** - Initial build/install (benefits from Blacksmith caching), database integration tests (I/O bound), Chromatic/Storybook builds
 
 **`blacksmith-4vcpu-ubuntu-2404`** - Unit tests (parallelized), linting (parallel file processing), typechecking (CPU-intensive), E2E test shards
 
