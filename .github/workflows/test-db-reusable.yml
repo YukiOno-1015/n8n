@@ -22,7 +22,7 @@ jobs:
         include:
           - name: SQLite Pooled
             runner: ubuntu-24.04
-            test-cmd: N8N_LOG_LEVEL=silent DB_SQLITE_POOL_SIZE=1 DB_TYPE=sqlite pnpm jest --config=jest.config.integration.js --no-coverage --runInBand
+            test-cmd: pnpm test:sqlite
             migration-cmd: pnpm test:sqlite:migrations
           - name: Postgres 16
             runner: blacksmith-4vcpu-ubuntu-2404
