@@ -37,7 +37,7 @@ import {
 	UnexpectedError,
 	UserError,
 } from 'n8n-workflow';
-import { readFile as fsReadFile } from 'node:fs/promises';
+import * as fsPromises from 'node:fs/promises';
 import path from 'path';
 
 import { CredentialsService } from '@/credentials/credentials.service';
@@ -296,7 +296,7 @@ export class SourceControlImportService {
 			remoteCredentialFiles.map(async (file) => {
 				this.logger.debug(`Parsing credential file ${file}`);
 				const remote = jsonParse<ExportableCredential>(
-					await fsReadFile(file, { encoding: 'utf8' }),
+					await fsPromises.readFile(file, { encoding: 'utf8' }),
 				);
 				return remote;
 			}),
@@ -397,7 +397,7 @@ export class SourceControlImportService {
 		if (variablesFile.length > 0) {
 			this.logger.debug(`Importing variables from file ${variablesFile[0]}`);
 			return jsonParse<ExportableVariable[]>(
-				await fsReadFile(variablesFile[0], { encoding: 'utf8' }),
+				await fsPromises.readFile(variablesFile[0], { encoding: 'utf8' }),
 				{
 					fallbackValue: [],
 				},
@@ -423,7 +423,7 @@ export class SourceControlImportService {
 		const remoteTables = await Promise.all(
 			dataTableFiles.map(async (file): Promise<ExportableDataTable | undefined> => {
 				this.logger.debug(`Parsing data table file ${file}`);
-				const fileContent = await fsReadFile(file, { encoding: 'utf8' });
+				const fileContent = await fsPromises.readFile(file, { encoding: 'utf8' });
 				try {
 					return jsonParse<ExportableDataTable>(fileContent);
 				} catch (error) {
@@ -505,7 +505,7 @@ export class SourceControlImportService {
 			this.logger.debug(`Importing folders from file ${foldersFile[0]}`);
 			const mappedFolders = jsonParse<{
 				folders: ExportableFolder[];
-			}>(await fsReadFile(foldersFile[0], { encoding: 'utf8' }), {
+			}>(await fsPromises.readFile(foldersFile[0], { encoding: 'utf8' }), {
 				fallbackValue: { folders: [] },
 			});
 
@@ -556,7 +556,7 @@ export class SourceControlImportService {
 		if (tagsFile.length > 0) {
 			this.logger.debug(`Importing tags from file ${tagsFile[0]}`);
 			const mappedTags = jsonParse<ExportableTags>(
-				await fsReadFile(tagsFile[0], { encoding: 'utf8' }),
+				await fsPromises.readFile(tagsFile[0], { encoding: 'utf8' }),
 				{ fallbackValue: { tags: [], mappings: [] } },
 			);
 
@@ -600,7 +600,7 @@ export class SourceControlImportService {
 		const remoteProjects = await Promise.all(
 			remoteProjectFiles.map(async (file) => {
 				this.logger.debug(`Parsing project file ${file}`);
-				const fileContent = await fsReadFile(file, { encoding: 'utf8' });
+				const fileContent = await fsPromises.readFile(file, { encoding: 'utf8' });
 				const parsedProject = jsonParse<ExportableProject>(fileContent);
 
 				return {
@@ -801,7 +801,7 @@ export class SourceControlImportService {
 	private async parseWorkflowFromFile(file: string): Promise<IWorkflowToImport> {
 		this.logger.debug(`Parsing workflow file ${file}`);
 		try {
-			const fileContent = await fsReadFile(file, { encoding: 'utf8' });
+			const fileContent = await fsPromises.readFile(file, { encoding: 'utf8' });
 			return jsonParse<IWorkflowToImport>(fileContent);
 		} catch (error) {
 			this.logger.error(`Failed to parse workflow file ${file}`, { error });
@@ -905,7 +905,7 @@ export class SourceControlImportService {
 			candidates.map(async (candidate) => {
 				this.logger.debug(`Importing credentials file ${candidate.file}`);
 				const credential = jsonParse<ExportableCredential>(
-					await fsReadFile(candidate.file, { encoding: 'utf8' }),
+					await fsPromises.readFile(candidate.file, { encoding: 'utf8' }),
 				);
 				const existingCredential = existingCredentials.find(
 					(e) => e.id === credential.id && e.type === credential.type,
@@ -964,7 +964,7 @@ export class SourceControlImportService {
 		try {
 			this.logger.debug(`Importing tags from file ${candidate.file}`);
 			mappedTags = jsonParse<{ tags: TagEntity[]; mappings: WorkflowTagMapping[] }>(
-				await fsReadFile(candidate.file, { encoding: 'utf8' }),
+				await fsPromises.readFile(candidate.file, { encoding: 'utf8' }),
 				{ fallbackValue: { tags: [], mappings: [] } },
 			);
 		} catch (e) {
@@ -1062,7 +1062,7 @@ export class SourceControlImportService {
 			this.logger.debug(`Importing folders from file ${candidate.file}`);
 			mappedFolders = jsonParse<{
 				folders: ExportableFolder[];
-			}>(await fsReadFile(candidate.file, { encoding: 'utf8' }), {
+			}>(await fsPromises.readFile(candidate.file, { encoding: 'utf8' }), {
 				fallbackValue: { folders: [] },
 			});
 		} catch (e) {
@@ -1178,7 +1178,7 @@ export class SourceControlImportService {
 		try {
 			this.logger.debug(`Importing variables from file ${candidate.file}`);
 			importedVariables = jsonParse<ExportableVariable[]>(
-				await fsReadFile(candidate.file, { encoding: 'utf8' }),
+				await fsPromises.readFile(candidate.file, { encoding: 'utf8' }),
 				{ fallbackValue: [] },
 			);
 		} catch (e) {
@@ -1216,7 +1216,7 @@ export class SourceControlImportService {
 			let dataTable: ExportableDataTable;
 			try {
 				dataTable = jsonParse<ExportableDataTable>(
-					await fsReadFile(candidate.file, { encoding: 'utf8' }),
+					await fsPromises.readFile(candidate.file, { encoding: 'utf8' }),
 				);
 			} catch (error) {
 				this.logger.error(`Failed to parse data table from file ${candidate.file}`, {
@@ -1425,7 +1425,7 @@ export class SourceControlImportService {
 			try {
 				this.logger.debug(`Importing project file ${candidate.file}`);
 				const project = jsonParse<ExportableProject>(
-					await fsReadFile(candidate.file, { encoding: 'utf8' }),
+					await fsPromises.readFile(candidate.file, { encoding: 'utf8' }),
 				);
 
 				// Ensure that only team owned projects are imported as we can't resolve owners for personal projects
