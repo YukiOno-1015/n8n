@@ -47,6 +47,12 @@ jobs:
         working-directory: packages/cli
         run: pnpm rebuild sqlite3
 
+      - name: Ensure sqlite3 is resolvable
+        if: matrix.name == 'SQLite Pooled'
+        working-directory: packages/cli
+        run: |
+          node -e "require('sqlite3')" || (pnpm add sqlite3@5.1.7 --no-save && node -e "require('sqlite3')")
+
       - name: Run Tests
         working-directory: packages/cli
         run: ${{ matrix.test-cmd }}
