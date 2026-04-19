@@ -51,7 +51,7 @@ jobs:
         if: matrix.name == 'SQLite Pooled'
         working-directory: packages/cli
         run: |
-          cat > /tmp/check-sqlite-pooled.js <<'NODE'
+          cat > ./check-sqlite-pooled.cjs <<'NODE'
           const { DataSource } = require('@n8n/typeorm');
 
           (async () => {
@@ -76,11 +76,13 @@ jobs:
           });
           NODE
 
-          node /tmp/check-sqlite-pooled.js || (
+          node ./check-sqlite-pooled.cjs || (
             pnpm rebuild sqlite3 --config.build-from-source=true && \
             (cd ../.. && pnpm rebuild sqlite3 --config.build-from-source=true) && \
-            node /tmp/check-sqlite-pooled.js
+            node ./check-sqlite-pooled.cjs
           )
+
+          rm -f ./check-sqlite-pooled.cjs
 
       - name: Run Tests
         working-directory: packages/cli
