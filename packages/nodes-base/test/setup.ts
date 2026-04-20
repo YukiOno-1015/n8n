@@ -1,3 +1,4 @@
+import '../../cli/test/extend-expect';
 import 'reflect-metadata';
 
 process.env.N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS = 'false';
