@@ -26,6 +26,7 @@ exports[`CanvasNodeAddNodes > should render node correctly 1`] = `
         focusable="false"
         height="40px"
         role="img"
+        style="color: var(--color--foreground--shade-2);"
         viewBox="0 0 24 24"
         width="40px"
       >

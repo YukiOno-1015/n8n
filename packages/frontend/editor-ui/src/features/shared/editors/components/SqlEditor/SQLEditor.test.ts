@@ -32,8 +32,10 @@ const DEFAULT_SETUP: RenderOptions<typeof SqlEditor> = {
 };
 
 async function focusEditor(container: Element) {
-	await waitFor(() => expect(container.querySelector('.cm-line')).toBeInTheDocument());
-	await userEvent.click(container.querySelector('.cm-line') as Element);
+	await waitFor(() =>
+		expect(container.querySelector('.cm-content[contenteditable="true"]')).toBeInTheDocument(),
+	);
+	(container.querySelector('.cm-content[contenteditable="true"]') as HTMLElement).focus();
 }
 
 const nodes = [

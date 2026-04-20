@@ -136,6 +136,7 @@ describe('SettingsPersonalView', () => {
 
 	describe('when changing language', () => {
 		it('should persist selected language in root store and clear override if equal to instance default', async () => {
+			settingsStore.settings.defaultLocale = 'en';
 			rootStore.setDefaultLocale('de');
 			globalThis.localStorage.setItem(LOCAL_STORAGE_LOCALE, 'de');
 

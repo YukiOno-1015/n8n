@@ -9,31 +9,31 @@ const mockLayouts = {
 	DefaultLayout: {
 		template: '<div data-test-id="default-layout"><slot /></div>',
 		mounted() {
-			this.$emit('mounted', this.$el);
+			this.$emit('mounted', document.createElement('div'));
 		},
 	} as ComponentOptions,
 	SettingsLayout: {
 		template: '<div data-test-id="settings-layout"><slot /></div>',
 		mounted() {
-			this.$emit('mounted', this.$el);
+			this.$emit('mounted', document.createElement('div'));
 		},
 	} as ComponentOptions,
 	WorkflowLayout: {
 		template: '<div data-test-id="workflow-layout"><slot /></div>',
 		mounted() {
-			this.$emit('mounted', this.$el);
+			this.$emit('mounted', document.createElement('div'));
 		},
 	} as ComponentOptions,
 	AuthLayout: {
 		template: '<div data-test-id="auth-layout"><slot /></div>',
 		mounted() {
-			this.$emit('mounted', this.$el);
+			this.$emit('mounted', document.createElement('div'));
 		},
 	} as ComponentOptions,
 	DemoLayout: {
 		template: '<div data-test-id="demo-layout"><slot /></div>',
 		mounted() {
-			this.$emit('mounted', this.$el);
+			this.$emit('mounted', document.createElement('div'));
 		},
 	} as ComponentOptions,
 };
@@ -178,9 +178,8 @@ describe('AppLayout', () => {
 		await flushPromises();
 
 		expect(onMounted).toHaveBeenCalledTimes(1);
-		// The emitted value should be the layoutRef element or null
 		const emittedValue = onMounted.mock.calls[0][0];
-		expect(emittedValue === null || emittedValue instanceof Object).toBe(true);
+		expect(emittedValue).toBeInstanceOf(HTMLElement);
 	});
 
 	it('should emit mounted event with null if layoutRef is not set', async () => {
