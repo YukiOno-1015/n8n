@@ -27,7 +27,7 @@ describe('decorators', () => {
 				value = 'string';
 			}
 			Container.get(InvalidConfig);
-			}).toThrow(
+		}).toThrow(
 			'Invalid decorator metadata on key "value" on InvalidConfig\n Please use explicit typing on all config fields',
 		);
 	});
