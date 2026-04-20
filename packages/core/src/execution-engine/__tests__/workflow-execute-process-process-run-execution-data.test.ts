@@ -62,7 +62,7 @@ describe('processRunExecutionData', () => {
 		// ACT & ASSERT
 		// The function returns a Promise, but throws synchronously, so we can't await it.
 		// eslint-disable-next-line @typescript-eslint/promise-function-async
-		expect(() => workflowExecute.processRunExecutionData(workflow)).toThrowError(
+		expect(() => workflowExecute.processRunExecutionData(workflow)).toThrow(
 			new ApplicationError('Failed to run workflow due to missing execution data'),
 		);
 	});
@@ -246,7 +246,7 @@ describe('processRunExecutionData', () => {
 			// ACT & ASSERT
 			// The function returns a Promise, but throws synchronously, so we can't await it.
 			// eslint-disable-next-line @typescript-eslint/promise-function-async
-			expect(() => workflowExecute.processRunExecutionData(workflow)).toThrowError(
+			expect(() => workflowExecute.processRunExecutionData(workflow)).toThrow(
 				new ApplicationError(
 					'The workflow has issues and cannot be executed for that reason. Please fix them first.',
 				),
@@ -278,7 +278,7 @@ describe('processRunExecutionData', () => {
 			// ACT & ASSERT
 			// The function returns a Promise, but throws synchronously, so we can't await it.
 			// eslint-disable-next-line @typescript-eslint/promise-function-async
-			expect(() => workflowExecute.processRunExecutionData(workflow)).not.toThrowError();
+			expect(() => workflowExecute.processRunExecutionData(workflow)).not.toThrow();
 		});
 	});
 

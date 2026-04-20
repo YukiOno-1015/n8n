@@ -9,17 +9,19 @@ import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-type ObjectStoreServiceMock = jest.Mocked<
-	Pick<ObjectStoreService, 'store' | 'get' | 'getMetadata' | 'deleteOne'>
+type ObjectStoreServiceMock = Pick<
+	ObjectStoreService,
+	'checkConnection' | 'put' | 'get' | 'getMetadata' | 'deleteOne'
 >;
 
 const objectStoreService: ObjectStoreServiceMock = {
-	store: jest.fn(),
+	checkConnection: jest.fn(),
+	put: jest.fn(),
 	get: jest.fn(),
 	getMetadata: jest.fn(),
 	deleteOne: jest.fn(),
 };
-const objectStoreManager = new ObjectStoreManager(objectStoreService);
+const objectStoreManager = new ObjectStoreManager(objectStoreService as ObjectStoreService);
 
 const workflowId = 'ObogjVbqpNOQpiyV';
 const executionId = '999';
