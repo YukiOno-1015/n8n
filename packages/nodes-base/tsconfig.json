@@ -1,6 +1,7 @@
 {
 	"extends": ["@n8n/typescript-config/modern/tsconfig.json"],
 	"compilerOptions": {
+		"types": ["node", "jest"],
 		"paths": {
 			"@credentials/*": ["./credentials/*"],
 			"@test/*": ["./test/*"],

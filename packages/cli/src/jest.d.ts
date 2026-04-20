@@ -1,10 +1,10 @@
-declare var beforeAll: jest.Lifecycle;
-declare var beforeEach: jest.Lifecycle;
-declare var afterAll: jest.Lifecycle;
-declare var afterEach: jest.Lifecycle;
-declare var describe: jest.Describe;
-declare var it: jest.It;
-declare var test: jest.It;
+declare const beforeAll: jest.Lifecycle;
+declare const beforeEach: jest.Lifecycle;
+declare const afterAll: jest.Lifecycle;
+declare const afterEach: jest.Lifecycle;
+declare const describe: jest.Describe;
+declare const it: jest.It;
+declare const test: jest.It;
 declare const expect: jest.Expect;
 
 namespace jest {
