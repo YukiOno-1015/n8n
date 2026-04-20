@@ -392,8 +392,7 @@ describe('ManualExecutionService', () => {
 			}));
 
 			await expect(
-				async () =>
-					await manualExecutionService.runManually(data, workflow, additionalData, executionId),
+				async () => manualExecutionService.runManually(data, workflow, additionalData, executionId),
 			).rejects.toThrowError(
 				'a destinationNodeName is required for the new partial execution flow',
 			);

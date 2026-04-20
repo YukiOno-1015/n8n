@@ -53,7 +53,7 @@ describe('DirectoryLoader', () => {
 				credentials: credential ? [{ name: credential }] : [],
 				properties: [],
 			},
-		}) as INodeType;
+		}) as unknown as INodeType;
 
 	const createVersionedNode = (
 		name: string,

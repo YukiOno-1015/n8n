@@ -1,4 +1,3 @@
-import type { MockedFunction } from 'jest';
 import { mock } from 'jest-mock-extended';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
@@ -10,11 +9,11 @@ import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-const checkConnectionMock = jest.fn() as MockedFunction<ObjectStoreService['checkConnection']>;
-const putMock = jest.fn() as MockedFunction<ObjectStoreService['put']>;
-const getMock = jest.fn() as MockedFunction<ObjectStoreService['get']>;
-const getMetadataMock = jest.fn() as MockedFunction<ObjectStoreService['getMetadata']>;
-const deleteOneMock = jest.fn() as MockedFunction<ObjectStoreService['deleteOne']>;
+const checkConnectionMock: ObjectStoreService['checkConnection'] = jest.fn();
+const putMock: ObjectStoreService['put'] = jest.fn();
+const getMock: ObjectStoreService['get'] = jest.fn();
+const getMetadataMock: ObjectStoreService['getMetadata'] = jest.fn();
+const deleteOneMock: ObjectStoreService['deleteOne'] = jest.fn();
 
 const objectStoreService = {
 	checkConnection: checkConnectionMock,
@@ -44,14 +43,15 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-	getMock.mockReset();
-	getMock.mockImplementation(async (_fileId, { mode }) =>
+	const getMockFn = getMock as jest.Mock;
+	getMockFn.mockReset();
+	getMockFn.mockImplementation(async (_fileId: string, { mode }: { mode: 'stream' | 'buffer' }) =>
 		mode === 'stream' ? mockStream : mockBuffer,
 	);
-	checkConnectionMock.mockReset();
-	putMock.mockReset();
-	getMetadataMock.mockReset();
-	deleteOneMock.mockReset();
+	(checkConnectionMock as jest.Mock).mockReset();
+	(putMock as jest.Mock).mockReset();
+	(getMetadataMock as jest.Mock).mockReset();
+	(deleteOneMock as jest.Mock).mockReset();
 });
 
 describe('store()', () => {
@@ -79,6 +79,8 @@ describe('getPath()', () => {
 
 describe('getAsBuffer()', () => {
 	it('should return a buffer', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
+
 		const result = await objectStoreManager.getAsBuffer(fileId);
 
 		expect(Buffer.isBuffer(result)).toBe(true);
@@ -88,6 +90,8 @@ describe('getAsBuffer()', () => {
 
 describe('getAsStream()', () => {
 	it('should return a stream', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockStream);
+
 		const stream = await objectStoreManager.getAsStream(fileId);
 
 		expect(stream).toBeInstanceOf(Readable);
@@ -100,7 +104,7 @@ describe('getMetadata()', () => {
 		const mimeType = 'text/plain';
 		const fileName = 'file.txt';
 
-		getMetadataMock.mockResolvedValue(
+		(getMetadataMock as jest.Mock).mockResolvedValue(
 			mock<MetadataResponseHeaders>({
 				'content-length': '1',
 				'content-type': mimeType,
@@ -117,6 +121,8 @@ describe('getMetadata()', () => {
 
 describe('copyByFileId()', () => {
 	it('should copy by file ID and return the file ID', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
+
 		const targetFileId = await objectStoreManager.copyByFileId(
 			{ type: 'execution', workflowId, executionId },
 			fileId,
@@ -148,6 +154,9 @@ describe('copyByFilePath()', () => {
 
 describe('rename()', () => {
 	it('should rename a file', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
+		(getMetadataMock as jest.Mock).mockResolvedValueOnce(mock<MetadataResponseHeaders>());
+
 		const promise = objectStoreManager.rename(fileId, otherFileId);
 
 		await expect(promise).resolves.not.toThrow();
