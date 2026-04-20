@@ -26,7 +26,6 @@ on:
         default: "queue"
 
 env:
-  DOCKER_IMAGE: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
   HELM_CHART_REF: ${{ inputs.helm-chart-ref || 'main' }}
 
 jobs:
@@ -44,6 +43,12 @@ jobs:
           ref: ${{ inputs.branch || github.ref }}
           fetch-depth: 1
 
+      - name: Normalize image coordinates
+        id: normalize-image-coordinates
+        run: |
+          echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
       - name: Login to GHCR
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
@@ -58,9 +63,9 @@ jobs:
           enable-docker-cache: true
         env:
           INCLUDE_TEST_CONTROLLER: "true"
-          IMAGE_BASE_NAME: ghcr.io/${{ github.repository }}
+          IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.repo_lc }}
           IMAGE_TAG: ci-${{ github.run_id }}
-          RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ github.repository_owner }}/runners
+          RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.owner_lc }}/runners
 
   helm-e2e:
     name: "Helm E2E (${{ inputs.mode || 'queue' }})"
@@ -76,6 +81,9 @@ jobs:
         with:
           ref: ${{ inputs.branch || github.ref }}
           fetch-depth: 1
+
+      - name: Normalize docker image name
+        run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:ci-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
 
       - name: Setup Environment
         uses: ./.github/actions/setup-nodejs
@@ -170,6 +178,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_ORG: ${{ github.repository_owner }}
           GHCR_REPO: ${{ github.event.repository.name }}
-        run: node .github/scripts/cleanup-ghcr-images.mjs --tag ci-${{ github.run_id }}
+        run: |
+          GHCR_ORG="${GITHUB_REPOSITORY_OWNER,,}" \
+          node .github/scripts/cleanup-ghcr-images.mjs --tag ci-${{ github.run_id }}
