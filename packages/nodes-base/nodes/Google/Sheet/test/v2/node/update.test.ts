@@ -6,11 +6,15 @@ import { execute } from '../../../v2/actions/sheet/update.operation';
 import type { GoogleSheet } from '../../../v2/helpers/GoogleSheet';
 
 describe('Google Sheet - Update', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockGoogleSheet: MockProxy<GoogleSheet>;
 
 	beforeEach(() => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 
 		mockExecuteFunctions.getNode.mockReturnValueOnce(mock<INode>({ typeVersion: 4.5 }));
@@ -207,11 +211,15 @@ describe('Google Sheet - Update', () => {
 });
 
 describe('Google Sheet - Update 4.6', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockGoogleSheet: MockProxy<GoogleSheet>;
 
 	beforeEach(() => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 
 		mockExecuteFunctions.getNode.mockReturnValueOnce(mock<INode>({ typeVersion: 4.6 }));
@@ -321,7 +329,9 @@ describe('Google Sheet - Update 4.6', () => {
 });
 
 describe('Google Sheet - Update v4.6 vs v4.7 Behavior', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockGoogleSheet: MockProxy<GoogleSheet>;
 
 	afterEach(() => {
@@ -329,7 +339,9 @@ describe('Google Sheet - Update v4.6 vs v4.7 Behavior', () => {
 	});
 
 	it('v4.6: empty string in UI gets filtered out, field not sent to backend', async () => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 		mockExecuteFunctions.getNode.mockReturnValueOnce(mock<INode>({ typeVersion: 4.6 }));
 		mockGoogleSheet.batchUpdate.mockResolvedValueOnce([]);

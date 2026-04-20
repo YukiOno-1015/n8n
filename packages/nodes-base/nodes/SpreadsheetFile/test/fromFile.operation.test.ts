@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { IBinaryData, IExecuteFunctions, INode, INodeExecutionData } from 'n8n-workflow';
 import { BINARY_ENCODING, NodeOperationError } from 'n8n-workflow';
 import { Readable } from 'stream';
@@ -15,7 +15,9 @@ import { read as xlsxRead, utils as xlsxUtils } from 'xlsx';
 import { execute } from '../v2/fromFile.operation';
 
 describe('fromFile.operation - xlsx parsing logic', () => {
-	const mockExecuteFunctions = mockDeep<IExecuteFunctions>();
+	const mockExecuteFunctions = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	const mockBinaryDataInMemory: IBinaryData = {
 		data: 'dGVzdCBkYXRh',

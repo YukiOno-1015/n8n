@@ -7,11 +7,15 @@ import { execute } from '../../../v2/actions/sheet/appendOrUpdate.operation';
 import type { GoogleSheet } from '../../../v2/helpers/GoogleSheet';
 
 describe('Google Sheet - Append or Update', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockGoogleSheet: MockProxy<GoogleSheet>;
 
 	beforeEach(() => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 	});
 
@@ -711,7 +715,9 @@ describe('Google Sheet - Append or Update', () => {
 });
 
 describe('Google Sheet - Append or Update v4.6 vs v4.7 Behavior', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockGoogleSheet: MockProxy<GoogleSheet>;
 
 	afterEach(() => {
@@ -719,7 +725,9 @@ describe('Google Sheet - Append or Update v4.6 vs v4.7 Behavior', () => {
 	});
 
 	it('v4.6: empty string in UI gets filtered out, field not sent to backend', async () => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 
 		mockExecuteFunctions.getNode
@@ -789,7 +797,9 @@ describe('Google Sheet - Append or Update v4.6 vs v4.7 Behavior', () => {
 	});
 
 	it('v4.7: empty string in UI is preserved and sent to backend to clear cell', async () => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockGoogleSheet = mock<GoogleSheet>();
 
 		mockExecuteFunctions.getNode

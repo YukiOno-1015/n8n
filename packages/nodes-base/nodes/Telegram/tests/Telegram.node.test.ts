@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type {
 	IExecuteFunctions,
 	INode,
@@ -10,7 +10,9 @@ import * as GenericFunctions from '../GenericFunctions';
 import { Telegram } from '../Telegram.node';
 
 describe('Telegram node', () => {
-	const executeFunctionsMock = mockDeep<IExecuteFunctions>();
+	const executeFunctionsMock = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	const apiRequestSpy = jest.spyOn(GenericFunctions, 'apiRequest');
 	const node = new Telegram();
 

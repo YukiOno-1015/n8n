@@ -25,7 +25,9 @@ jest.mock('../../GenericFunctions', () => ({
 }));
 
 describe('Test MicrosoftOneDrive, file > download', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let microsoftOneDrive: MicrosoftOneDrive;
 	const httpRequest = jest.fn(async () => ({ body: mock<IncomingMessage>() }));
 	const prepareBinaryData = jest.fn(async () => ({ data: 'testBinary' }));
@@ -40,7 +42,9 @@ describe('Test MicrosoftOneDrive, file > download', () => {
 	};
 
 	beforeEach(() => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		microsoftOneDrive = new MicrosoftOneDrive();
 
 		mockExecuteFunctions.helpers = {

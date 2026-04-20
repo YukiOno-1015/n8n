@@ -16,12 +16,16 @@ const jiraSoftwareCloudApiRequestAllItems =
 
 describe('Jira Node', () => {
 	let jiraNode: Jira;
-	let executeFunctionsMock: DeepMockProxy<IExecuteFunctions>;
+	let executeFunctionsMock: DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		jest.clearAllMocks();
 		jiraNode = new Jira();
-		executeFunctionsMock = mockDeep<IExecuteFunctions>();
+		executeFunctionsMock = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		executeFunctionsMock.getInputData.mockReturnValue([{ json: {} }]);
 		executeFunctionsMock.helpers.returnJsonArray.mockReturnValue([]);
 		executeFunctionsMock.helpers.constructExecutionMetaData.mockReturnValue([]);

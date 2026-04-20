@@ -15,13 +15,15 @@ import { RespondToWebhook } from '../RespondToWebhook.node';
 
 describe('RespondToWebhook Node', () => {
 	let respondToWebhook: RespondToWebhook;
-	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		respondToWebhook = new RespondToWebhook();
 		mockExecuteFunctions = mockDeep<IExecuteFunctions>({
 			helpers: { constructExecutionMetaData },
-		});
+		}) as DeepMockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 	});
 
 	describe('chatTrigger response', () => {

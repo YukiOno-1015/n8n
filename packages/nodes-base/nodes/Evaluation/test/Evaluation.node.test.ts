@@ -1,4 +1,4 @@
-import { mock } from 'jest-mock-extended';
+import { mock, type MockProxy } from 'jest-mock-extended';
 import {
 	type IDataTableProjectService,
 	NodeOperationError,
@@ -23,7 +23,7 @@ describe('Test Evaluation', () => {
 
 	const mockExecuteFunctions = mock<IExecuteFunctions>({
 		helpers: { getDataTableProxy: jest.fn().mockResolvedValue(mockDataTable) },
-	});
+	}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 
 	beforeEach(() => {
 		(mockExecuteFunctions.getInputData as jest.Mock).mockReturnValue([{ json: {} }]);
