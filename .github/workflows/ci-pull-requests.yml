@@ -1,19 +1,21 @@
-name: 'CI: Pull Requests (Build, Test, Lint)'
+name: "CI: Pull Requests (Build, Test, Lint)"
 
 on:
   pull_request:
   merge_group:
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.event.merge_group.head_sha || github.ref }}
+  group: ci-${{ github.event.pull_request.number ||
+    github.event.merge_group.head_sha || github.ref }}
   cancel-in-progress: true
 
 jobs:
   install-and-build:
     name: Install & Build
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'ubuntu-24.04' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' ||
+      'ubuntu-24.04' }}
     env:
-      NODE_OPTIONS: '--max-old-space-size=6144'
+      NODE_OPTIONS: "--max-old-space-size=6144"
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       QA_METRICS_WEBHOOK_URL: ${{ secrets.QA_METRICS_WEBHOOK_URL }}
       QA_METRICS_WEBHOOK_USER: ${{ secrets.QA_METRICS_WEBHOOK_USER }}
@@ -23,16 +25,20 @@ jobs:
       unit: ${{ fromJSON(steps.ci-filter.outputs.results).unit == true }}
       e2e: ${{ fromJSON(steps.ci-filter.outputs.results).e2e == true }}
       workflows: ${{ fromJSON(steps.ci-filter.outputs.results).workflows == true }}
-      workflow_scripts: ${{ fromJSON(steps.ci-filter.outputs.results)['workflow-scripts'] == true }}
+      workflow_scripts: ${{
+        fromJSON(steps.ci-filter.outputs.results)['workflow-scripts'] == true }}
       db: ${{ fromJSON(steps.ci-filter.outputs.results).db == true }}
       performance: ${{ fromJSON(steps.ci-filter.outputs.results).performance == true }}
-      e2e_performance: ${{ fromJSON(steps.ci-filter.outputs.results)['e2e-performance'] == true }}
+      e2e_performance: ${{
+        fromJSON(steps.ci-filter.outputs.results)['e2e-performance'] == true }}
       commit_sha: ${{ steps.commit-sha.outputs.sha }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           # Use merge_group SHA when in merge queue, otherwise PR merge ref
-          ref: ${{ github.event_name == 'merge_group' && github.event.merge_group.head_sha || format('refs/pull/{0}/merge', github.event.pull_request.number) }}
+          ref: ${{ github.event_name == 'merge_group' && github.event.merge_group.head_sha
+            || format('refs/pull/{0}/merge', github.event.pull_request.number)
+            }}
 
       - name: Capture commit SHA for cache consistency
         id: commit-sha
@@ -104,7 +110,8 @@ jobs:
   typecheck:
     name: Typecheck
     if: needs.install-and-build.outputs.ci == 'true'
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2404' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     needs: install-and-build
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -127,7 +134,8 @@ jobs:
   check-packaging:
     name: Check packaging
     if: needs.install-and-build.outputs.ci == 'true'
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2404' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     needs: install-and-build
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -145,11 +153,14 @@ jobs:
   e2e-tests:
     name: E2E Tests
     needs: install-and-build
-    if: (needs.install-and-build.outputs.ci == 'true' || needs.install-and-build.outputs.e2e == 'true') && github.repository == 'n8n-io/n8n' && github.event_name != 'merge_group'
+    if: (needs.install-and-build.outputs.ci == 'true' ||
+      needs.install-and-build.outputs.e2e == 'true') && github.repository ==
+      'n8n-io/n8n' && github.event_name != 'merge_group'
     uses: ./.github/workflows/test-e2e-ci-reusable.yml
     with:
       branch: ${{ needs.install-and-build.outputs.commit_sha }}
-      playwright-only: ${{ needs.install-and-build.outputs.e2e == 'true' && needs.install-and-build.outputs.unit == 'false' }}
+      playwright-only: ${{ needs.install-and-build.outputs.e2e == 'true' &&
+        needs.install-and-build.outputs.unit == 'false' }}
     secrets: inherit
 
   db-tests:
@@ -163,7 +174,8 @@ jobs:
   performance:
     name: Performance
     needs: install-and-build
-    if: needs.install-and-build.outputs.performance == 'true' && github.event_name != 'merge_group'
+    if: needs.install-and-build.outputs.performance == 'true' && github.event_name
+      != 'merge_group'
     uses: ./.github/workflows/test-bench-reusable.yml
     with:
       ref: ${{ needs.install-and-build.outputs.commit_sha }}
@@ -172,9 +184,9 @@ jobs:
     name: E2E Performance
     needs: install-and-build
     if: >-
-      (needs.install-and-build.outputs.ci == 'true' || needs.install-and-build.outputs.e2e_performance == 'true') &&
-      github.event_name == 'pull_request' &&
-      github.repository == 'n8n-io/n8n'
+      (needs.install-and-build.outputs.ci == 'true' ||
+      needs.install-and-build.outputs.e2e_performance == 'true') &&
+      github.event_name == 'pull_request' && github.repository == 'n8n-io/n8n'
     uses: ./.github/workflows/test-e2e-performance-reusable.yml
     secrets: inherit
 
@@ -225,12 +237,12 @@ jobs:
         with:
           mode: validate
           job-results: ${{ toJSON(needs) }}
-          
+
   # Posts a QA metrics comparison comment on the PR.
   # Runs after all checks so any job can emit metrics before this reports.
   post-qa-metrics-comment:
     name: QA Metrics
-    needs: [required-checks, e2e-performance]
+    needs: [ required-checks, e2e-performance ]
     if: always()
     uses: ./.github/workflows/util-qa-metrics-comment-reusable.yml
     with:

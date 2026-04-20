@@ -1,29 +1,29 @@
-name: 'Test: E2E Helm Chart'
+name: "Test: E2E Helm Chart"
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/test-e2e-helm.yml'
-      - 'packages/testing/containers/helm-stack.ts'
-      - 'packages/testing/containers/helm-start-stack.ts'
+      - ".github/workflows/test-e2e-helm.yml"
+      - "packages/testing/containers/helm-stack.ts"
+      - "packages/testing/containers/helm-start-stack.ts"
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to test'
+        description: "Branch to test"
         required: false
-        default: ''
+        default: ""
       helm-chart-ref:
-        description: 'n8n-hosting branch/tag for Helm chart'
+        description: "n8n-hosting branch/tag for Helm chart"
         required: false
-        default: 'main'
+        default: "main"
       mode:
-        description: 'Deployment mode to test'
+        description: "Deployment mode to test"
         required: true
         type: choice
         options:
           - standalone
           - queue
-        default: 'queue'
+        default: "queue"
 
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
@@ -31,8 +31,9 @@ env:
 
 jobs:
   build:
-    name: 'Build Docker Image'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    name: "Build Docker Image"
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     permissions:
       packages: write
       contents: read
@@ -53,10 +54,10 @@ jobs:
       - name: Build and push to GHCR
         uses: ./.github/actions/setup-nodejs
         with:
-          build-command: 'pnpm build:docker'
+          build-command: "pnpm build:docker"
           enable-docker-cache: true
         env:
-          INCLUDE_TEST_CONTROLLER: 'true'
+          INCLUDE_TEST_CONTROLLER: "true"
           IMAGE_BASE_NAME: ghcr.io/${{ github.repository }}
           IMAGE_TAG: ci-${{ github.run_id }}
           RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ github.repository_owner }}/runners
@@ -64,7 +65,8 @@ jobs:
   helm-e2e:
     name: "Helm E2E (${{ inputs.mode || 'queue' }})"
     needs: build
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     timeout-minutes: 30
     permissions:
       contents: read
@@ -78,7 +80,7 @@ jobs:
       - name: Setup Environment
         uses: ./.github/actions/setup-nodejs
         with:
-          build-command: 'pnpm build'
+          build-command: "pnpm build"
 
       - name: Install Browsers
         working-directory: packages/testing/playwright
@@ -92,7 +94,7 @@ jobs:
 
       - name: Start K3s + Helm stack
         env:
-          TESTCONTAINERS_RYUK_DISABLED: 'true'
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           npx tsx packages/testing/containers/helm-start-stack.ts \
             --env E2E_TESTS=true --env NODE_ENV=development \
@@ -150,8 +152,8 @@ jobs:
           retention-days: 7
 
   cleanup-ghcr:
-    name: 'Cleanup GHCR Image'
-    needs: [build, helm-e2e]
+    name: "Cleanup GHCR Image"
+    needs: [ build, helm-e2e ]
     if: always()
     runs-on: ubuntu-24.04
     permissions:
