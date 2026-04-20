@@ -1,4 +1,5 @@
 import { ApplicationError } from 'n8n-workflow';
+import { readFile } from 'fs/promises';
 
 global.fetch = jest.fn();
 
@@ -10,8 +11,6 @@ const mockContainer = {
 	get: jest.fn(),
 };
 
-const mockReadFile = jest.fn();
-
 jest.mock('@n8n/di', () => ({
 	Container: mockContainer,
 }));
@@ -21,11 +20,12 @@ jest.mock('@n8n/config', () => ({
 }));
 
 jest.mock('fs/promises', () => ({
-	readFile: mockReadFile,
+	readFile: jest.fn(),
 }));
 
 import * as systemCredentialsUtils from './system-credentials-utils';
 
+const mockReadFile = jest.mocked(readFile);
 const mockEnvGetter = jest.fn();
 
 jest.spyOn(systemCredentialsUtils, 'envGetter').mockImplementation(mockEnvGetter);

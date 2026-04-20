@@ -263,13 +263,9 @@ describe('Generic Functions', () => {
 			testResponse.body = { error: { message: 'Invalid param' } };
 			await expect(
 				agentErrorPostReceive.call(mockExecuteSingleFunctions, testData, testResponse),
-			).rejects.toThrowError(
-				expect.objectContaining({
-					description: expect.stringContaining(
-						'https://docs.perplexity.ai/api-reference/agent-post',
-					),
-				}),
-			);
+			).rejects.toMatchObject({
+				description: expect.stringContaining('https://docs.perplexity.ai/api-reference/agent-post'),
+			});
 		});
 	});
 
@@ -312,13 +308,11 @@ describe('Generic Functions', () => {
 			testResponse.body = { error: { message: 'Invalid query' } };
 			await expect(
 				searchErrorPostReceive.call(mockExecuteSingleFunctions, testData, testResponse),
-			).rejects.toThrowError(
-				expect.objectContaining({
-					description: expect.stringContaining(
-						'https://docs.perplexity.ai/api-reference/search-post',
-					),
-				}),
-			);
+			).rejects.toMatchObject({
+				description: expect.stringContaining(
+					'https://docs.perplexity.ai/api-reference/search-post',
+				),
+			});
 		});
 	});
 
@@ -361,13 +355,11 @@ describe('Generic Functions', () => {
 			testResponse.body = { error: { message: 'Invalid input' } };
 			await expect(
 				embeddingsErrorPostReceive.call(mockExecuteSingleFunctions, testData, testResponse),
-			).rejects.toThrowError(
-				expect.objectContaining({
-					description: expect.stringContaining(
-						'https://docs.perplexity.ai/api-reference/embeddings-post',
-					),
-				}),
-			);
+			).rejects.toMatchObject({
+				description: expect.stringContaining(
+					'https://docs.perplexity.ai/api-reference/embeddings-post',
+				),
+			});
 		});
 	});
 });

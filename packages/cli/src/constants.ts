@@ -1,11 +1,10 @@
 import { Time } from '@n8n/constants';
-import { readFileSync, statSync } from 'fs';
+import { statSync } from 'fs';
 import type { n8n } from 'n8n-core';
 import type { ITaskDataConnections } from 'n8n-workflow';
 import {
 	ERROR_TRIGGER_NODE_TYPE,
 	EXECUTE_WORKFLOW_TRIGGER_NODE_TYPE,
-	jsonParse,
 	TRIMMED_TASK_DATA_CONNECTIONS_KEY,
 } from 'n8n-workflow';
 import { resolve, join, dirname } from 'path';
@@ -24,13 +23,22 @@ export const EDITOR_UI_DIST_DIR = join(dirname(require.resolve('n8n-editor-ui'))
 
 const packageJsonPath = join(CLI_DIR, 'package.json');
 const aiAssistantPackageJsonPath = join(AI_ASSISTANT_SDK_DIR, 'package.json');
-const n8nPackageJson = jsonParse<n8n.PackageJson>(readFileSync(packageJsonPath, 'utf8'));
-const aiAssistantPackageJson = jsonParse<n8n.PackageJson>(
-	readFileSync(aiAssistantPackageJsonPath, 'utf8'),
-);
+
+const requirePackageJson = <T>(path: string): T => require(path) as T;
+
+const getFileMtime = (path: string) => {
+	try {
+		return statSync(path).mtime;
+	} catch {
+		return new Date(0);
+	}
+};
+
+const n8nPackageJson = requirePackageJson<n8n.PackageJson>(packageJsonPath);
+const aiAssistantPackageJson = requirePackageJson<n8n.PackageJson>(aiAssistantPackageJsonPath);
 export const N8N_VERSION = n8nPackageJson.version;
 export const AI_ASSISTANT_SDK_VERSION = aiAssistantPackageJson.version;
-export const N8N_RELEASE_DATE = statSync(packageJsonPath).mtime;
+export const N8N_RELEASE_DATE = getFileMtime(packageJsonPath);
 
 export const STARTING_NODES = [
 	'@n8n/n8n-nodes-langchain.manualChatTrigger',

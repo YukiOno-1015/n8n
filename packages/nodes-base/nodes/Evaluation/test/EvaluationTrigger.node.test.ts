@@ -89,7 +89,7 @@ describe('Evaluation Trigger Node', () => {
 								row_number: 2,
 								Header1: 'Value1',
 								Header2: 'Value2',
-								_rowsLeft: 2,
+								_rowsLeft: 1,
 							},
 							pairedItem: {
 								item: 0,
@@ -193,7 +193,7 @@ describe('Evaluation Trigger Node', () => {
 								row_number: 2,
 								Header1: 'Value1',
 								Header2: 'Value2',
-								_rowsLeft: 2,
+								_rowsLeft: 1,
 							},
 							pairedItem: {
 								item: 0,

@@ -207,12 +207,13 @@ describe('SqlEditor.vue', () => {
 			...DEFAULT_SETUP,
 			props: {
 				...DEFAULT_SETUP.props,
-				modelValue: 'SELECT * FROM users',
+				modelValue: 'SELECT * FROM {{ $json.table }}',
 			},
 		});
 
 		// Does not hide output when clicking inside the output
 		await focusEditor(container);
+		await waitFor(() => expect(getByTestId(EXPRESSION_OUTPUT_TEST_ID)).toBeInTheDocument());
 		await userEvent.click(getByTestId(EXPRESSION_OUTPUT_TEST_ID));
 
 		await waitFor(() => expect(queryByTestId(EXPRESSION_OUTPUT_TEST_ID)).toBeInTheDocument());

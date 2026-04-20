@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Test Summarize Node, aggregateAndSplitData should handle multiple split field values containing null when convertKeysToString is false: split-field-with-spaces-array 1`] = `
 [
