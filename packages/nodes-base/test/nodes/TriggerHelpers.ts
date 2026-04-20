@@ -244,10 +244,8 @@ export async function testPollingTriggerNode(
 	const workflow = mock<Workflow>({
 		timezone,
 		nodeTypes: mock<INodeTypes>({
-			getByNameAndVersion: (_nodeType: string, _version?: number) =>
-				mock<INodeType>({
-					description: trigger.description as unknown as INodeType['description'],
-				}),
+			getByNameAndVersion: ((_nodeType: string, _version?: number) =>
+				({ description: trigger.description }) as INodeType) as INodeTypes['getByNameAndVersion'],
 		}),
 		getStaticData: () => options.workflowStaticData ?? {},
 	});

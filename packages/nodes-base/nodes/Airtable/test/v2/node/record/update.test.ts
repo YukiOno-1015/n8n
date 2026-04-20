@@ -6,6 +6,8 @@ import * as update from '../../../../v2/actions/record/update.operation';
 import * as transport from '../../../../v2/transport';
 import { createMockExecuteFunction } from '../helpers';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 jest.mock('../../../../v2/transport', () => {
 	const originalModule = jest.requireActual('../../../../v2/transport');
 	return {
@@ -42,14 +44,18 @@ jest.mock('../../../../v2/transport', () => {
 });
 
 describe('Test AirtableV2, update operation', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 
 	afterEach(() => {
 		jest.clearAllMocks();
 	});
 
 	it('should skip validation if typecast option is true', async () => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: GetNodeParameterMock;
+		};
 		mockExecuteFunctions.helpers.constructExecutionMetaData = jest.fn(() => []);
 		mockExecuteFunctions.getNodeParameter.mockImplementation((key: string) => {
 			if (key === 'columns.mappingMode') {

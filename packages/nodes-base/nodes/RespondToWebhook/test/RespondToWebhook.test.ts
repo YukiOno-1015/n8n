@@ -13,17 +13,19 @@ import {
 
 import { RespondToWebhook } from '../RespondToWebhook.node';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 describe('RespondToWebhook Node', () => {
 	let respondToWebhook: RespondToWebhook;
 	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions> & {
-		getNodeParameter: jest.Mock<any, any>;
+		getNodeParameter: GetNodeParameterMock;
 	};
 
 	beforeEach(() => {
 		respondToWebhook = new RespondToWebhook();
 		mockExecuteFunctions = mockDeep<IExecuteFunctions>({
 			helpers: { constructExecutionMetaData },
-		}) as DeepMockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
+		}) as DeepMockProxy<IExecuteFunctions> & { getNodeParameter: GetNodeParameterMock };
 	});
 
 	describe('chatTrigger response', () => {

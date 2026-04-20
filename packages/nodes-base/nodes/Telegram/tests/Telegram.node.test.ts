@@ -9,9 +9,11 @@ import type {
 import * as GenericFunctions from '../GenericFunctions';
 import { Telegram } from '../Telegram.node';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 describe('Telegram node', () => {
 	const executeFunctionsMock = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
-		getNodeParameter: jest.Mock<any, any>;
+		getNodeParameter: GetNodeParameterMock;
 	};
 	const apiRequestSpy = jest.spyOn(GenericFunctions, 'apiRequest');
 	const node = new Telegram();

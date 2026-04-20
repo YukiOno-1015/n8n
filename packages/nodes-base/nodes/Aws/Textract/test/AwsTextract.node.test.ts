@@ -1,9 +1,11 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { IExecuteFunctions, INode } from 'n8n-workflow';
 import nock from 'nock';
 
 import { AwsTextract } from '../AwsTextract.node';
 import * as GenericFunctions from '../GenericFunctions';
+
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
 
 const mockTextractResponse = {
 	ExpenseDocuments: [
@@ -27,7 +29,9 @@ const mockSimplifiedResponse = {
 };
 
 describe('AWS Textract Node', () => {
-	const executeFunctionsMock = mockDeep<IExecuteFunctions>();
+	const executeFunctionsMock = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 	const awsApiRequestSpy = jest.spyOn(GenericFunctions, 'awsApiRequestREST');
 	const simplifySpy = jest.spyOn(GenericFunctions, 'simplify');
 	const node = new AwsTextract();

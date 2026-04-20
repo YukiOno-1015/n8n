@@ -6,6 +6,8 @@ import { Readable } from 'stream';
 import * as genericFunctions from '../../GenericFunctions';
 import { YouTube } from '../../YouTube.node';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 jest.mock('../../GenericFunctions', () => {
 	const originalModule = jest.requireActual('../../GenericFunctions');
 	return {
@@ -27,13 +29,17 @@ const httpRequestMock = jest.fn(() => ({ id: '5678' }));
 
 describe('Test YouTube, video => upload', () => {
 	let youTube: YouTube;
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 	let fromSpy: jest.SpyInstance;
 
 	beforeEach(() => {
 		fromSpy = jest.spyOn(Readable, 'from');
 		youTube = new YouTube();
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: GetNodeParameterMock;
+		};
 		const buffer = Buffer.alloc(2 * 1024 * 1024, 'a');
 		mockExecuteFunctions.helpers = {
 			constructExecutionMetaData: jest.fn(() => []),

@@ -1,4 +1,4 @@
-import { mock } from 'jest-mock-extended';
+import { mock, type MockProxy } from 'jest-mock-extended';
 import type {
 	IExecuteFunctions,
 	IDataTableProjectAggregateService,
@@ -10,6 +10,13 @@ import * as createOperation from '../../actions/table/create.operation';
 import * as deleteOperation from '../../actions/table/delete.operation';
 import * as listOperation from '../../actions/table/list.operation';
 import * as updateOperation from '../../actions/table/update.operation';
+
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+type ExecuteFunctionsMock = MockProxy<IExecuteFunctions> & {
+	getNodeParameter: GetNodeParameterMock;
+};
+
+const createExecuteFunctionsMock = () => mock<IExecuteFunctions>() as ExecuteFunctionsMock;
 
 const mockNode: INode = {
 	id: 'test-node',
@@ -23,7 +30,7 @@ const mockNode: INode = {
 describe('Table Operations', () => {
 	describe('Create Operation', () => {
 		it('should create a new data table with columns', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -71,7 +78,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should create a table with empty columns array', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -105,7 +112,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should return existing table when createIfNotExists is enabled and table exists', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -145,7 +152,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should create new table when createIfNotExists is enabled but table does not exist', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -191,7 +198,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should support all column types', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -244,7 +251,7 @@ describe('Table Operations', () => {
 
 	describe('Delete Operation', () => {
 		it('should delete a data table successfully', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockDataTableProxy = mock<IDataTableProjectService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -266,7 +273,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should return success false when deletion fails', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockDataTableProxy = mock<IDataTableProjectService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -290,7 +297,7 @@ describe('Table Operations', () => {
 
 	describe('List Operation', () => {
 		it('should list all data tables without filters', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -326,7 +333,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should list data tables with limit', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -362,7 +369,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should filter data tables by name', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -396,7 +403,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should sort data tables by name ascending', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -433,7 +440,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should handle pagination for returnAll option', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -488,7 +495,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should return empty array when no tables exist', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockAggregateProxy = mock<IDataTableProjectAggregateService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -516,7 +523,7 @@ describe('Table Operations', () => {
 
 	describe('Update Operation', () => {
 		it('should update a data table name successfully', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockDataTableProxy = mock<IDataTableProjectService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
@@ -541,7 +548,7 @@ describe('Table Operations', () => {
 		});
 
 		it('should return success false when update fails', async () => {
-			const mockExecuteFunctions = mock<IExecuteFunctions>();
+			const mockExecuteFunctions = createExecuteFunctionsMock();
 			const mockDataTableProxy = mock<IDataTableProjectService>();
 
 			mockExecuteFunctions.getNode.mockReturnValue(mockNode);
