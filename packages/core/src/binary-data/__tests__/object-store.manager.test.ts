@@ -1,19 +1,20 @@
+import type { MockedFunction } from 'jest';
 import { mock } from 'jest-mock-extended';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 
-import { ObjectStoreService } from '@/binary-data/object-store/object-store.service.ee';
+import type { ObjectStoreService } from '@/binary-data/object-store/object-store.service.ee';
 import type { MetadataResponseHeaders } from '@/binary-data/object-store/types';
 import { ObjectStoreManager } from '@/binary-data/object-store.manager';
 import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-const checkConnectionMock = jest.fn() as jest.MockedFunction<ObjectStoreService['checkConnection']>;
-const putMock = jest.fn() as jest.MockedFunction<ObjectStoreService['put']>;
-const getMock = jest.fn() as jest.MockedFunction<ObjectStoreService['get']>;
-const getMetadataMock = jest.fn() as jest.MockedFunction<ObjectStoreService['getMetadata']>;
-const deleteOneMock = jest.fn() as jest.MockedFunction<ObjectStoreService['deleteOne']>;
+const checkConnectionMock = jest.fn() as MockedFunction<ObjectStoreService['checkConnection']>;
+const putMock = jest.fn() as MockedFunction<ObjectStoreService['put']>;
+const getMock = jest.fn() as MockedFunction<ObjectStoreService['get']>;
+const getMetadataMock = jest.fn() as MockedFunction<ObjectStoreService['getMetadata']>;
+const deleteOneMock = jest.fn() as MockedFunction<ObjectStoreService['deleteOne']>;
 
 const objectStoreService = {
 	checkConnection: checkConnectionMock,
@@ -42,6 +43,17 @@ beforeAll(() => {
 	jest.restoreAllMocks();
 });
 
+beforeEach(() => {
+	getMock.mockReset();
+	getMock.mockImplementation(async (_fileId, { mode }) =>
+		mode === 'stream' ? mockStream : mockBuffer,
+	);
+	checkConnectionMock.mockReset();
+	putMock.mockReset();
+	getMetadataMock.mockReset();
+	deleteOneMock.mockReset();
+});
+
 describe('store()', () => {
 	it('should store a buffer', async () => {
 		const metadata = { mimeType: 'text/plain' };
@@ -67,8 +79,6 @@ describe('getPath()', () => {
 
 describe('getAsBuffer()', () => {
 	it('should return a buffer', async () => {
-		getMock.mockResolvedValue(mockBuffer);
-
 		const result = await objectStoreManager.getAsBuffer(fileId);
 
 		expect(Buffer.isBuffer(result)).toBe(true);
@@ -78,8 +88,6 @@ describe('getAsBuffer()', () => {
 
 describe('getAsStream()', () => {
 	it('should return a stream', async () => {
-		getMock.mockResolvedValue(mockStream);
-
 		const stream = await objectStoreManager.getAsStream(fileId);
 
 		expect(stream).toBeInstanceOf(Readable);

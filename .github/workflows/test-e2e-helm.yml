@@ -63,6 +63,7 @@ jobs:
           enable-docker-cache: true
         env:
           INCLUDE_TEST_CONTROLLER: "true"
+          NODE_VERSION: "22"
           IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.repo_lc }}
           IMAGE_TAG: ci-${{ github.run_id }}
           RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.owner_lc }}/runners
