@@ -2,5 +2,5 @@
 module.exports = {
 	...require('../../../jest.config'),
 	collectCoverageFrom: ['src/**/*.ts', 'integration-tests/**/*.ts'],
-	setupFilesAfterEnv: ['jest-expect-message'],
+	setupFilesAfterEnv: ['jest-expect-message', '<rootDir>/../../cli/test/extend-expect.ts'],
 };

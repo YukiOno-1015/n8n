@@ -55,7 +55,7 @@ const config = {
 				})
 			: {}),
 	},
-	setupFilesAfterEnv: ['jest-expect-message'],
+	setupFilesAfterEnv: ['jest-expect-message', resolve(__dirname, 'packages/cli/test/extend-expect.ts')],
 	collectCoverage: isCoverageEnabled,
 	coverageReporters: ['text-summary', 'lcov', 'html-spa'],
 	workerIdleMemoryLimit: '1MB',
