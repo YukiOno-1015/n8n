@@ -67,7 +67,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 
 	describe('successful file download', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'file';
@@ -123,7 +123,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 		});
 
 		it('should handle bucket names with dots correctly', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'file';
@@ -172,7 +172,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 					.mockResolvedValueOnce(mockLocationResponse)
 					.mockResolvedValueOnce(mockFileResponse);
 
-				executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+				executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 					switch (paramName) {
 						case 'resource':
 							return 'file';
@@ -202,7 +202,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 
 	describe('error handling', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'file';
@@ -230,7 +230,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 
 	describe('continueOnFail logic', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'file';
@@ -303,7 +303,7 @@ describe('AWS S3 V2 Node - File Download', () => {
 
 	describe('binary data handling', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'file';

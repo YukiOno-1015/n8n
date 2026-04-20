@@ -16,6 +16,13 @@ const DEFAULT_SETUP = {
 	},
 };
 
+async function focusEditor(container: Element) {
+	await waitFor(() =>
+		expect(container.querySelector('.cm-content[contenteditable="true"]')).toBeInTheDocument(),
+	);
+	(container.querySelector('.cm-content[contenteditable="true"]') as HTMLElement).focus();
+}
+
 describe('HtmlEditor.vue', () => {
 	const pinia = createTestingPinia({
 		initialState: {
@@ -59,13 +66,13 @@ describe('HtmlEditor.vue', () => {
 	});
 
 	it('emits update:model-value events', async () => {
-		const { emitted, getByRole } = renderComponent(HtmlEditor, {
+		const { emitted, container } = renderComponent(HtmlEditor, {
 			...DEFAULT_SETUP,
 			props: DEFAULT_SETUP.props,
 		});
 
-		const textbox = await waitFor(() => getByRole('textbox'));
-		await userEvent.type(textbox, '<div>Content');
+		await focusEditor(container);
+		await userEvent.keyboard('<div>Content');
 
 		await waitFor(() =>
 			expect(emitted('update:model-value')).toEqual([

@@ -59,7 +59,7 @@ describe('AWS Textract Node', () => {
 
 	describe('analyzeExpense operation', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'operation':
 						return 'analyzeExpense';
@@ -102,7 +102,7 @@ describe('AWS Textract Node', () => {
 		});
 
 		it('should return raw response when simple is false', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'operation':
 						return 'analyzeExpense';
@@ -127,7 +127,7 @@ describe('AWS Textract Node', () => {
 		});
 
 		it('should handle different binary property names', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'operation':
 						return 'analyzeExpense';

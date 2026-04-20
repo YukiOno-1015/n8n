@@ -143,6 +143,6 @@ const legacyMatchers = {
 
 expect.extend(legacyMatchers);
 
-if (jestGlobalsExpect !== expect) {
+if (!Object.is(jestGlobalsExpect, expect)) {
 	jestGlobalsExpect.extend(legacyMatchers);
 }

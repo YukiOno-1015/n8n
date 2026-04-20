@@ -4,6 +4,13 @@ import { renderComponent } from '@/__tests__/render';
 import { waitFor } from '@testing-library/vue';
 import { userEvent } from '@testing-library/user-event';
 
+async function focusEditor(container: Element) {
+	await waitFor(() =>
+		expect(container.querySelector('.cm-content[contenteditable="true"]')).toBeInTheDocument(),
+	);
+	(container.querySelector('.cm-content[contenteditable="true"]') as HTMLElement).focus();
+}
+
 describe('JsonEditor', () => {
 	const renderEditor = (jsonString: string) =>
 		renderComponent(JsonEditor, {
@@ -41,10 +48,10 @@ describe('JsonEditor', () => {
 	it('emits update:model-value events', async () => {
 		const modelValue = '{ "test": 1 }';
 
-		const { emitted, getByRole } = renderEditor(modelValue);
+		const { emitted, container } = renderEditor(modelValue);
 
-		const textbox = await waitFor(() => getByRole('textbox'));
-		await userEvent.type(textbox, 'test');
+		await focusEditor(container);
+		await userEvent.keyboard('test');
 
 		await waitFor(() => expect(emitted('update:modelValue')).toContainEqual(['test{ "test": 1 }']));
 	});

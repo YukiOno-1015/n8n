@@ -31,6 +31,7 @@ exports[`v2/components/DropdownMenuItem > rendering > should render checked item
     focusable="false"
     height="16px"
     role="img"
+    style="color: var(--color--text--tint-1);"
     viewBox="0 0 24 24"
     width="16px"
   >
@@ -166,6 +167,7 @@ exports[`v2/components/DropdownMenuItem > rendering > should render item with ic
     focusable="false"
     height="16px"
     role="img"
+    style="color: var(--color--text--tint-1);"
     viewBox="0 0 24 24"
     width="16px"
   >
@@ -316,6 +318,7 @@ exports[`v2/components/DropdownMenuItem > rendering > should render sub-menu tri
     focusable="false"
     height="16px"
     role="img"
+    style="color: var(--color--text--tint-1);"
     viewBox="0 0 24 24"
     width="16px"
   >
