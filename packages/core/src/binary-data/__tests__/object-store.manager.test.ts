@@ -5,11 +5,20 @@ import { Readable } from 'node:stream';
 import { ObjectStoreService } from '@/binary-data/object-store/object-store.service.ee';
 import type { MetadataResponseHeaders } from '@/binary-data/object-store/types';
 import { ObjectStoreManager } from '@/binary-data/object-store.manager';
-import { mockInstance, toFileId, toStream } from '@test/utils';
+import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-const objectStoreService = mockInstance(ObjectStoreService);
+type ObjectStoreServiceMock = jest.Mocked<
+	Pick<ObjectStoreService, 'store' | 'get' | 'getMetadata' | 'deleteOne'>
+>;
+
+const objectStoreService: ObjectStoreServiceMock = {
+	store: jest.fn(),
+	get: jest.fn(),
+	getMetadata: jest.fn(),
+	deleteOne: jest.fn(),
+};
 const objectStoreManager = new ObjectStoreManager(objectStoreService);
 
 const workflowId = 'ObogjVbqpNOQpiyV';
