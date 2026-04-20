@@ -67,7 +67,7 @@ describe('DirectoryLoader', () => {
 	let mockCredential1: ICredentialType, mockNode1: INodeType, mockNode2: INodeType;
 
 	beforeEach(() => {
-		mockFs.realpathSync.mockImplementation((path) => String(path));
+		mockFs.realpathSync.mockImplementation(((path) => String(path)) as typeof fs.realpathSync);
 		mockCredential1 = createCredential('credential1');
 		mockNode1 = createNode('node1', 'credential1');
 		mockNode2 = createNode('node2');
@@ -302,7 +302,7 @@ describe('DirectoryLoader', () => {
 		it('should only load included nodes when includeNodes is set', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -321,7 +321,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(directory, [], ['n8n-nodes-testing.node1']);
 			await loader.loadAll();
@@ -338,7 +338,7 @@ describe('DirectoryLoader', () => {
 		it('should load no nodes when includeNodes does not match any nodes', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -357,7 +357,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(
 				directory,
@@ -375,7 +375,7 @@ describe('DirectoryLoader', () => {
 		it('should not include nodes that are not in "includeNodes" even if they are from a different package', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -394,7 +394,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(
 				directory,

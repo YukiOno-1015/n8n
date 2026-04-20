@@ -2152,7 +2152,9 @@ describe('RoutingNode', () => {
 				spy.mockClear();
 
 				executeFunctions.getNodeParameter.mockImplementation(
-					(parameterName: string) => testData.input.node.parameters[parameterName] || {},
+					((parameterName: string) =>
+						testData.input.node.parameters[parameterName] ||
+						{}) as typeof executeFunctions.getNodeParameter,
 				);
 
 				const getNodeParameter = executeSingleFunctions.getNodeParameter;

@@ -9,19 +9,20 @@ import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-type ObjectStoreServiceMock = Pick<
-	ObjectStoreService,
-	'checkConnection' | 'put' | 'get' | 'getMetadata' | 'deleteOne'
->;
+const checkConnectionMock = jest.fn() as jest.MockedFunction<ObjectStoreService['checkConnection']>;
+const putMock = jest.fn() as jest.MockedFunction<ObjectStoreService['put']>;
+const getMock = jest.fn() as jest.MockedFunction<ObjectStoreService['get']>;
+const getMetadataMock = jest.fn() as jest.MockedFunction<ObjectStoreService['getMetadata']>;
+const deleteOneMock = jest.fn() as jest.MockedFunction<ObjectStoreService['deleteOne']>;
 
-const objectStoreService: ObjectStoreServiceMock = {
-	checkConnection: jest.fn(),
-	put: jest.fn(),
-	get: jest.fn(),
-	getMetadata: jest.fn(),
-	deleteOne: jest.fn(),
-};
-const objectStoreManager = new ObjectStoreManager(objectStoreService as ObjectStoreService);
+const objectStoreService = {
+	checkConnection: checkConnectionMock,
+	put: putMock,
+	get: getMock,
+	getMetadata: getMetadataMock,
+	deleteOne: deleteOneMock,
+} as unknown as ObjectStoreService;
+const objectStoreManager = new ObjectStoreManager(objectStoreService);
 
 const workflowId = 'ObogjVbqpNOQpiyV';
 const executionId = '999';
@@ -66,24 +67,23 @@ describe('getPath()', () => {
 
 describe('getAsBuffer()', () => {
 	it('should return a buffer', async () => {
-		// @ts-expect-error Overload signature seemingly causing the return type to be misinferred
-		objectStoreService.get.mockResolvedValue(mockBuffer);
+		getMock.mockResolvedValue(mockBuffer);
 
 		const result = await objectStoreManager.getAsBuffer(fileId);
 
 		expect(Buffer.isBuffer(result)).toBe(true);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
 	});
 });
 
 describe('getAsStream()', () => {
 	it('should return a stream', async () => {
-		objectStoreService.get.mockResolvedValue(mockStream);
+		getMock.mockResolvedValue(mockStream);
 
 		const stream = await objectStoreManager.getAsStream(fileId);
 
 		expect(stream).toBeInstanceOf(Readable);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'stream' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'stream' });
 	});
 });
 
@@ -92,7 +92,7 @@ describe('getMetadata()', () => {
 		const mimeType = 'text/plain';
 		const fileName = 'file.txt';
 
-		objectStoreService.getMetadata.mockResolvedValue(
+		getMetadataMock.mockResolvedValue(
 			mock<MetadataResponseHeaders>({
 				'content-length': '1',
 				'content-type': mimeType,
@@ -103,7 +103,7 @@ describe('getMetadata()', () => {
 		const metadata = await objectStoreManager.getMetadata(fileId);
 
 		expect(metadata).toEqual(expect.objectContaining({ fileSize: 1, mimeType, fileName }));
-		expect(objectStoreService.getMetadata).toHaveBeenCalledWith(fileId);
+		expect(getMetadataMock).toHaveBeenCalledWith(fileId);
 	});
 });
 
@@ -115,7 +115,7 @@ describe('copyByFileId()', () => {
 		);
 
 		expect(targetFileId.startsWith(prefix)).toBe(true);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
 	});
 });
 
@@ -144,8 +144,8 @@ describe('rename()', () => {
 
 		await expect(promise).resolves.not.toThrow();
 
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
-		expect(objectStoreService.getMetadata).toHaveBeenCalledWith(fileId);
-		expect(objectStoreService.deleteOne).toHaveBeenCalledWith(fileId);
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMetadataMock).toHaveBeenCalledWith(fileId);
+		expect(deleteOneMock).toHaveBeenCalledWith(fileId);
 	});
 });
