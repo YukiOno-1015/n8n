@@ -2,14 +2,26 @@ import { mock } from 'jest-mock-extended';
 import fs from 'node:fs/promises';
 import { Readable } from 'node:stream';
 
-import { ObjectStoreService } from '@/binary-data/object-store/object-store.service.ee';
+import type { ObjectStoreService } from '@/binary-data/object-store/object-store.service.ee';
 import type { MetadataResponseHeaders } from '@/binary-data/object-store/types';
 import { ObjectStoreManager } from '@/binary-data/object-store.manager';
-import { mockInstance, toFileId, toStream } from '@test/utils';
+import { toFileId, toStream } from '@test/utils';
 
 jest.mock('fs/promises');
 
-const objectStoreService = mockInstance(ObjectStoreService);
+const checkConnectionMock: ObjectStoreService['checkConnection'] = jest.fn();
+const putMock: ObjectStoreService['put'] = jest.fn();
+const getMock: ObjectStoreService['get'] = jest.fn();
+const getMetadataMock: ObjectStoreService['getMetadata'] = jest.fn();
+const deleteOneMock: ObjectStoreService['deleteOne'] = jest.fn();
+
+const objectStoreService = {
+	checkConnection: checkConnectionMock,
+	put: putMock,
+	get: getMock,
+	getMetadata: getMetadataMock,
+	deleteOne: deleteOneMock,
+} as unknown as ObjectStoreService;
 const objectStoreManager = new ObjectStoreManager(objectStoreService);
 
 const workflowId = 'ObogjVbqpNOQpiyV';
@@ -28,6 +40,18 @@ const mockStream = toStream(mockBuffer);
 
 beforeAll(() => {
 	jest.restoreAllMocks();
+});
+
+beforeEach(() => {
+	const getMockFn = getMock as jest.Mock;
+	getMockFn.mockReset();
+	getMockFn.mockImplementation(async (_fileId: string, { mode }: { mode: 'stream' | 'buffer' }) =>
+		mode === 'stream' ? mockStream : mockBuffer,
+	);
+	(checkConnectionMock as jest.Mock).mockReset();
+	(putMock as jest.Mock).mockReset();
+	(getMetadataMock as jest.Mock).mockReset();
+	(deleteOneMock as jest.Mock).mockReset();
 });
 
 describe('store()', () => {
@@ -55,24 +79,23 @@ describe('getPath()', () => {
 
 describe('getAsBuffer()', () => {
 	it('should return a buffer', async () => {
-		// @ts-expect-error Overload signature seemingly causing the return type to be misinferred
-		objectStoreService.get.mockResolvedValue(mockBuffer);
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
 
 		const result = await objectStoreManager.getAsBuffer(fileId);
 
 		expect(Buffer.isBuffer(result)).toBe(true);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
 	});
 });
 
 describe('getAsStream()', () => {
 	it('should return a stream', async () => {
-		objectStoreService.get.mockResolvedValue(mockStream);
+		(getMock as jest.Mock).mockResolvedValueOnce(mockStream);
 
 		const stream = await objectStoreManager.getAsStream(fileId);
 
 		expect(stream).toBeInstanceOf(Readable);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'stream' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'stream' });
 	});
 });
 
@@ -81,7 +104,7 @@ describe('getMetadata()', () => {
 		const mimeType = 'text/plain';
 		const fileName = 'file.txt';
 
-		objectStoreService.getMetadata.mockResolvedValue(
+		(getMetadataMock as jest.Mock).mockResolvedValue(
 			mock<MetadataResponseHeaders>({
 				'content-length': '1',
 				'content-type': mimeType,
@@ -92,19 +115,21 @@ describe('getMetadata()', () => {
 		const metadata = await objectStoreManager.getMetadata(fileId);
 
 		expect(metadata).toEqual(expect.objectContaining({ fileSize: 1, mimeType, fileName }));
-		expect(objectStoreService.getMetadata).toHaveBeenCalledWith(fileId);
+		expect(getMetadataMock).toHaveBeenCalledWith(fileId);
 	});
 });
 
 describe('copyByFileId()', () => {
 	it('should copy by file ID and return the file ID', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
+
 		const targetFileId = await objectStoreManager.copyByFileId(
 			{ type: 'execution', workflowId, executionId },
 			fileId,
 		);
 
 		expect(targetFileId.startsWith(prefix)).toBe(true);
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
 	});
 });
 
@@ -129,12 +154,15 @@ describe('copyByFilePath()', () => {
 
 describe('rename()', () => {
 	it('should rename a file', async () => {
+		(getMock as jest.Mock).mockResolvedValueOnce(mockBuffer);
+		(getMetadataMock as jest.Mock).mockResolvedValueOnce(mock<MetadataResponseHeaders>());
+
 		const promise = objectStoreManager.rename(fileId, otherFileId);
 
 		await expect(promise).resolves.not.toThrow();
 
-		expect(objectStoreService.get).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
-		expect(objectStoreService.getMetadata).toHaveBeenCalledWith(fileId);
-		expect(objectStoreService.deleteOne).toHaveBeenCalledWith(fileId);
+		expect(getMock).toHaveBeenCalledWith(fileId, { mode: 'buffer' });
+		expect(getMetadataMock).toHaveBeenCalledWith(fileId);
+		expect(deleteOneMock).toHaveBeenCalledWith(fileId);
 	});
 });

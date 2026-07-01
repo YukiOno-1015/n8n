@@ -1,4 +1,4 @@
-name: 'Test: DB Integration'
+name: "Test: DB Integration"
 
 on:
   workflow_call:
@@ -6,10 +6,10 @@ on:
       ref:
         required: false
         type: string
-        default: ''
+        default: ""
 
 env:
-  NODE_OPTIONS: '--max-old-space-size=6144'
+  NODE_OPTIONS: "--max-old-space-size=6144"
 
 jobs:
   test:
@@ -21,14 +21,15 @@ jobs:
       matrix:
         include:
           - name: SQLite Pooled
-            runner: blacksmith-2vcpu-ubuntu-2204
+            runner: ubuntu-24.04
             test-cmd: pnpm test:sqlite
             migration-cmd: pnpm test:sqlite:migrations
           - name: Postgres 16
-            runner: blacksmith-4vcpu-ubuntu-2204
+            runner: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+              'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
             test-cmd: pnpm test:postgres:integration:tc
             migration-cmd: pnpm test:postgres:migrations:tc
-            TEST_IMAGE_POSTGRES: 'postgres:16'
+            TEST_IMAGE_POSTGRES: "postgres:16"
     env:
       TEST_IMAGE_POSTGRES: ${{ matrix.TEST_IMAGE_POSTGRES }}
     steps:
@@ -41,6 +42,61 @@ jobs:
 
       - name: Pre-pull Test Container Images
         run: pnpm tsx packages/testing/containers/pull-test-images.ts || true
+
+      - name: Rebuild sqlite3 native bindings
+        if: matrix.name == 'SQLite Pooled'
+        working-directory: packages/cli
+        run: pnpm rebuild sqlite3
+
+      - name: Ensure sqlite3 is resolvable
+        if: matrix.name == 'SQLite Pooled'
+        working-directory: packages/cli
+        run: |
+          cat > ./check-sqlite-pooled.cjs <<'NODE'
+          const path = require('path');
+          const { createRequire } = require('module');
+
+          async function checkSqlitePooled(requireFrom, label) {
+            const { DataSource } = requireFrom('@n8n/typeorm');
+
+            const ds = new DataSource({
+              type: 'sqlite-pooled',
+              database: ':memory:',
+              poolSize: 1,
+              enableWAL: false,
+              acquireTimeout: 1000,
+              destroyTimeout: 1000,
+              entities: [],
+              subscribers: [],
+              migrations: [],
+            });
+
+            await ds.initialize();
+            await ds.destroy();
+            console.log(`sqlite-pooled initialization OK (${label})`);
+          }
+
+          (async () => {
+            const cliRequire = require;
+            const dbRequire = createRequire(path.resolve(process.cwd(), '../@n8n/db/package.json'));
+
+            await checkSqlitePooled(cliRequire, 'cli');
+            await checkSqlitePooled(dbRequire, 'db');
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+          node ./check-sqlite-pooled.cjs || (
+            pnpm add sqlite3@5.1.7 --no-save && \
+            (cd ../@n8n/db && pnpm add sqlite3@5.1.7 --no-save) && \
+            pnpm rebuild sqlite3 --config.build-from-source=true && \
+            (cd ../@n8n/db && pnpm rebuild sqlite3 --config.build-from-source=true) && \
+            node ./check-sqlite-pooled.cjs
+          )
+
+          rm -f ./check-sqlite-pooled.cjs
 
       - name: Run Tests
         working-directory: packages/cli

@@ -37,7 +37,7 @@ describe('Test MicrosoftOutlookV2, message => sendAndWait', () => {
 		mockExecuteFunctions.getInputData.mockReturnValue(items);
 		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('message');
 		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce(SEND_AND_WAIT_OPERATION);
-		mockExecuteFunctions.putExecutionToWait.mockImplementation();
+		mockExecuteFunctions.putExecutionToWait.mockResolvedValue(undefined);
 
 		//operation
 		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('my@outlook.com');

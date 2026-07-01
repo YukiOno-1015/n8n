@@ -12,7 +12,8 @@ export const createVitestConfig = (options: InlineConfig = {}) => {
 			outputFile: { junit: './junit.xml' },
 			coverage: {
 				enabled: false,
-				include: ['src/**'],
+				include: ['src/**/*.{js,jsx,ts,tsx,vue}'],
+				exclude: ['src/**/*.{scss,sass,css,md}'],
 				provider: 'v8',
 				reporter: ['text-summary', 'lcov', 'html-spa'],
 			},
@@ -29,7 +30,7 @@ export const createVitestConfig = (options: InlineConfig = {}) => {
 		const { coverage } = vitestConfig.test;
 		coverage.enabled = true;
 		if (process.env.CI === 'true' && coverage.provider === 'v8') {
-			coverage.include = ['src/**'];
+			coverage.include = ['src/**/*.{js,jsx,ts,tsx,vue}'];
 			coverage.reporter = ['cobertura'];
 		}
 	}

@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { IExecuteFunctions, INode, INodeExecutionData } from 'n8n-workflow';
 import { EditImage } from '../EditImage.node';
 
@@ -92,7 +92,9 @@ jest.mock('gm', () => jest.fn(() => mockGmInstance));
 
 describe('EditImage Node', () => {
 	let editImageNode: EditImage;
-	const mockExecuteFunctions = mockDeep<IExecuteFunctions>();
+	const mockExecuteFunctions = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 	let mockNode: INode;
 
 	beforeEach(() => {

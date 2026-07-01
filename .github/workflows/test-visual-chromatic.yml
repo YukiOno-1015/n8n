@@ -1,4 +1,4 @@
-name: 'Test: Visual Chromatic'
+name: "Test: Visual Chromatic"
 
 on:
   workflow_dispatch:
@@ -8,11 +8,12 @@ on:
         description: GitHub ref to check out.
         required: false
         type: string
-        default: ''
+        default: ""
 
 jobs:
   chromatic:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -22,7 +23,8 @@ jobs:
       - name: Setup Node.js
         uses: ./.github/actions/setup-nodejs
         with:
-          build-command: pnpm run build --filter=@n8n/utils --filter=@n8n/vitest-config --filter=@n8n/chat --filter=@n8n/design-system
+          build-command: pnpm run build --filter=@n8n/utils --filter=@n8n/vitest-config
+            --filter=@n8n/chat --filter=@n8n/design-system
 
       - name: Publish to Chromatic
         uses: chromaui/action@1cfa065cbdab28f6ca3afaeb3d761383076a35aa # v11
@@ -30,8 +32,8 @@ jobs:
         with:
           workingDir: packages/frontend/@n8n/storybook
           buildScriptName: build
-          autoAcceptChanges: 'master'
-          skip: 'release/**'
+          autoAcceptChanges: "master"
+          skip: "release/**"
           onlyChanged: true
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           exitZeroOnChanges: false

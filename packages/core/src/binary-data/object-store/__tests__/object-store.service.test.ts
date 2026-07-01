@@ -138,7 +138,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.checkConnection();
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -169,7 +169,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.getMetadata(fileId);
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -230,7 +230,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.put(fileId, mockBuffer, metadata);
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -280,7 +280,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.get(fileId, { mode: 'buffer' });
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -305,7 +305,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.deleteOne(fileId);
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -356,7 +356,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.deleteMany('test-dir/');
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -405,7 +405,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.list('test-dir/');
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 
@@ -468,7 +468,7 @@ describe('ObjectStoreService', () => {
 
 			const promise = objectStoreService.getListPage('test-dir/');
 
-			await expect(promise).rejects.toThrowError(FAILED_REQUEST_ERROR_MESSAGE);
+			await expect(promise).rejects.toThrow(FAILED_REQUEST_ERROR_MESSAGE);
 		});
 	});
 });

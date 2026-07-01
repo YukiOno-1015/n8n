@@ -1,5 +1,3 @@
-declare module '../../../nodes-base/dist/nodes/*';
-
 namespace jest {
 	interface Matchers<R, T> {
 		toBeCalled(): T;

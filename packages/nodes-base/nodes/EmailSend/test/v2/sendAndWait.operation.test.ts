@@ -38,7 +38,7 @@ describe('Test EmailSendV2, email => sendAndWait', () => {
 		mockExecuteFunctions.getNodeParameter.mockReturnValueOnce('to@mail.com');
 		mockExecuteFunctions.getInstanceId.mockReturnValue('instanceId');
 		mockExecuteFunctions.getCredentials.mockResolvedValue({});
-		mockExecuteFunctions.putExecutionToWait.mockImplementation();
+		mockExecuteFunctions.putExecutionToWait.mockResolvedValue(undefined);
 		mockExecuteFunctions.getInputData.mockReturnValue(items);
 
 		//getSendAndWaitConfig

@@ -1,38 +1,38 @@
-name: 'Test: E2E Helm Chart'
+name: "Test: E2E Helm Chart"
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/test-e2e-helm.yml'
-      - 'packages/testing/containers/helm-stack.ts'
-      - 'packages/testing/containers/helm-start-stack.ts'
+      - ".github/workflows/test-e2e-helm.yml"
+      - "packages/testing/containers/helm-stack.ts"
+      - "packages/testing/containers/helm-start-stack.ts"
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to test'
+        description: "Branch to test"
         required: false
-        default: ''
+        default: ""
       helm-chart-ref:
-        description: 'n8n-hosting branch/tag for Helm chart'
+        description: "n8n-hosting branch/tag for Helm chart"
         required: false
-        default: 'main'
+        default: "main"
       mode:
-        description: 'Deployment mode to test'
+        description: "Deployment mode to test"
         required: true
         type: choice
         options:
           - standalone
           - queue
-        default: 'queue'
+        default: "queue"
 
 env:
-  DOCKER_IMAGE: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
   HELM_CHART_REF: ${{ inputs.helm-chart-ref || 'main' }}
 
 jobs:
   build:
-    name: 'Build Docker Image'
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    name: "Build Docker Image"
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     permissions:
       packages: write
       contents: read
@@ -42,6 +42,12 @@ jobs:
         with:
           ref: ${{ inputs.branch || github.ref }}
           fetch-depth: 1
+
+      - name: Normalize image coordinates
+        id: normalize-image-coordinates
+        run: |
+          echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
 
       - name: Login to GHCR
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
@@ -53,18 +59,20 @@ jobs:
       - name: Build and push to GHCR
         uses: ./.github/actions/setup-nodejs
         with:
-          build-command: 'pnpm build:docker'
+          build-command: "pnpm build:docker"
           enable-docker-cache: true
         env:
-          INCLUDE_TEST_CONTROLLER: 'true'
-          IMAGE_BASE_NAME: ghcr.io/${{ github.repository }}
+          INCLUDE_TEST_CONTROLLER: "true"
+          NODE_VERSION: "22"
+          IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.repo_lc }}
           IMAGE_TAG: ci-${{ github.run_id }}
-          RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ github.repository_owner }}/runners
+          RUNNERS_IMAGE_BASE_NAME: ghcr.io/${{ steps.normalize-image-coordinates.outputs.owner_lc }}/runners
 
   helm-e2e:
     name: "Helm E2E (${{ inputs.mode || 'queue' }})"
     needs: build
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' &&
+      'blacksmith-4vcpu-ubuntu-2404' || 'ubuntu-24.04' }}
     timeout-minutes: 30
     permissions:
       contents: read
@@ -75,10 +83,13 @@ jobs:
           ref: ${{ inputs.branch || github.ref }}
           fetch-depth: 1
 
+      - name: Normalize docker image name
+        run: echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}:ci-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
+
       - name: Setup Environment
         uses: ./.github/actions/setup-nodejs
         with:
-          build-command: 'pnpm build'
+          build-command: "pnpm build"
 
       - name: Install Browsers
         working-directory: packages/testing/playwright
@@ -92,7 +103,7 @@ jobs:
 
       - name: Start K3s + Helm stack
         env:
-          TESTCONTAINERS_RYUK_DISABLED: 'true'
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: |
           npx tsx packages/testing/containers/helm-start-stack.ts \
             --env E2E_TESTS=true --env NODE_ENV=development \
@@ -150,10 +161,10 @@ jobs:
           retention-days: 7
 
   cleanup-ghcr:
-    name: 'Cleanup GHCR Image'
-    needs: [build, helm-e2e]
+    name: "Cleanup GHCR Image"
+    needs: [ build, helm-e2e ]
     if: always()
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
       contents: read
@@ -168,6 +179,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_ORG: ${{ github.repository_owner }}
           GHCR_REPO: ${{ github.event.repository.name }}
-        run: node .github/scripts/cleanup-ghcr-images.mjs --tag ci-${{ github.run_id }}
+        run: |
+          GHCR_ORG="${GITHUB_REPOSITORY_OWNER,,}" \
+          node .github/scripts/cleanup-ghcr-images.mjs --tag ci-${{ github.run_id }}

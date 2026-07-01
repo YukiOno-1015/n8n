@@ -87,8 +87,8 @@ class BuildContext {
 
 	buildMatrix(platforms) {
 		const runners = {
-			'linux/amd64': 'blacksmith-4vcpu-ubuntu-2204',
-			'linux/arm64': 'blacksmith-4vcpu-ubuntu-2204-arm',
+			'linux/amd64': 'blacksmith-4vcpu-ubuntu-2404',
+			'linux/arm64': 'blacksmith-4vcpu-ubuntu-2404-arm',
 		};
 
 		const matrix = {

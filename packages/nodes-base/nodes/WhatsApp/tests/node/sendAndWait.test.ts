@@ -6,11 +6,15 @@ import { WhatsApp } from '../../WhatsApp.node';
 
 describe('Test WhatsApp Business Cloud, sendAndWait operation', () => {
 	let whatsApp: WhatsApp;
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		whatsApp = new WhatsApp();
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 
 		mockExecuteFunctions.helpers = {
 			httpRequestWithAuthentication: jest.fn().mockResolvedValue({}),
@@ -35,7 +39,7 @@ describe('Test WhatsApp Business Cloud, sendAndWait operation', () => {
 			if (key === 'options.limitWaitTime.values') return {};
 		});
 
-		mockExecuteFunctions.putExecutionToWait.mockImplementation();
+		mockExecuteFunctions.putExecutionToWait.mockResolvedValue(undefined);
 		mockExecuteFunctions.getInputData.mockReturnValue(items);
 		mockExecuteFunctions.getInstanceId.mockReturnValue('instanceId');
 

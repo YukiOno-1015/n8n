@@ -6,6 +6,8 @@ import { versionDescription } from '../../../../v2/actions/versionDescription';
 import { DiscordV2 } from '../../../../v2/DiscordV2.node';
 import * as transport from '../../../../v2/transport/discord.api';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 jest.mock('../../../../v2/transport/discord.api', () => {
 	const originalModule = jest.requireActual('../../../../v2/transport/discord.api');
 	return {
@@ -20,11 +22,15 @@ jest.mock('../../../../v2/transport/discord.api', () => {
 
 describe('Test DiscordV2, message => sendAndWait', () => {
 	let discord: DiscordV2;
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 
 	beforeEach(() => {
 		discord = new DiscordV2(versionDescription);
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: GetNodeParameterMock;
+		};
 		mockExecuteFunctions.helpers = {
 			constructExecutionMetaData: jest.fn(() => []),
 			returnJsonArray: jest.fn(() => []),
@@ -50,7 +56,7 @@ describe('Test DiscordV2, message => sendAndWait', () => {
 			if (key === 'options.limitWaitTime.values') return {};
 		});
 
-		mockExecuteFunctions.putExecutionToWait.mockImplementation();
+		mockExecuteFunctions.putExecutionToWait.mockResolvedValue(undefined);
 		mockExecuteFunctions.getInputData.mockReturnValue(items);
 		mockExecuteFunctions.getInstanceId.mockReturnValue('instanceId');
 

@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type {
 	IExecuteFunctions,
 	INode,
@@ -9,8 +9,12 @@ import type {
 import * as GenericFunctions from '../GenericFunctions';
 import { Telegram } from '../Telegram.node';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 describe('Telegram node', () => {
-	const executeFunctionsMock = mockDeep<IExecuteFunctions>();
+	const executeFunctionsMock = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 	const apiRequestSpy = jest.spyOn(GenericFunctions, 'apiRequest');
 	const node = new Telegram();
 
@@ -39,7 +43,7 @@ describe('Telegram node', () => {
 
 	describe('file:get', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((p) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((p: string) => {
 				switch (p) {
 					case 'resource':
 						return 'file';
@@ -142,7 +146,7 @@ describe('Telegram node', () => {
 		});
 
 		it('should use the provided mime type if it is specified', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((p) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((p: string) => {
 				switch (p) {
 					case 'resource':
 						return 'file';
@@ -203,7 +207,7 @@ describe('Telegram node', () => {
 
 	describe('assertBinaryData usage', () => {
 		beforeEach(() => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName, _) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string, _?: number) => {
 				switch (paramName) {
 					case 'resource':
 						return 'message';
@@ -253,26 +257,28 @@ describe('Telegram node', () => {
 		});
 
 		it('should call assertBinaryData for each item with correct index', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName, index) => {
-				switch (paramName) {
-					case 'resource':
-						return 'message';
-					case 'operation':
-						return 'sendPhoto';
-					case 'binaryData':
-						return true;
-					case 'chatId':
-						return `chat-id-${index}`;
-					case 'binaryPropertyName':
-						return `data${index}`;
-					case 'additionalFields.fileName':
-						return '';
-					case 'additionalFields':
-						return {};
-					default:
-						return undefined;
-				}
-			});
+			executeFunctionsMock.getNodeParameter.mockImplementation(
+				(paramName: string, index?: number) => {
+					switch (paramName) {
+						case 'resource':
+							return 'message';
+						case 'operation':
+							return 'sendPhoto';
+						case 'binaryData':
+							return true;
+						case 'chatId':
+							return `chat-id-${index}`;
+						case 'binaryPropertyName':
+							return `data${index}`;
+						case 'additionalFields.fileName':
+							return '';
+						case 'additionalFields':
+							return {};
+						default:
+							return undefined;
+					}
+				},
+			);
 
 			executeFunctionsMock.getInputData.mockReturnValue([
 				{
@@ -339,7 +345,7 @@ describe('Telegram node', () => {
 		});
 
 		it('should throw error when specified binary property does not exist', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName) => {
+			executeFunctionsMock.getNodeParameter.mockImplementation((paramName: string) => {
 				switch (paramName) {
 					case 'resource':
 						return 'message';
@@ -433,26 +439,28 @@ describe('Telegram node', () => {
 		beforeEach(() => {
 			executeFunctionsMock.helpers.assertBinaryData.mockImplementation(legacyBinaryAccessHelper);
 
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName, index) => {
-				switch (paramName) {
-					case 'resource':
-						return 'message';
-					case 'operation':
-						return 'sendPhoto';
-					case 'binaryData':
-						return true;
-					case 'chatId':
-						return index === 0 ? 'chat-id-0' : index === 1 ? 'chat-id-1' : 'chat-id-2';
-					case 'binaryPropertyName':
-						return index === 0 ? 'data0' : index === 1 ? 'data1' : 'data2';
-					case 'additionalFields.fileName':
-						return index === 0 ? 'photo0.jpg' : index === 1 ? 'photo1.png' : 'photo2.gif';
-					case 'additionalFields':
-						return {};
-					default:
-						return undefined;
-				}
-			});
+			executeFunctionsMock.getNodeParameter.mockImplementation(
+				(paramName: string, index?: number) => {
+					switch (paramName) {
+						case 'resource':
+							return 'message';
+						case 'operation':
+							return 'sendPhoto';
+						case 'binaryData':
+							return true;
+						case 'chatId':
+							return index === 0 ? 'chat-id-0' : index === 1 ? 'chat-id-1' : 'chat-id-2';
+						case 'binaryPropertyName':
+							return index === 0 ? 'data0' : index === 1 ? 'data1' : 'data2';
+						case 'additionalFields.fileName':
+							return index === 0 ? 'photo0.jpg' : index === 1 ? 'photo1.png' : 'photo2.gif';
+						case 'additionalFields':
+							return {};
+						default:
+							return undefined;
+					}
+				},
+			);
 		});
 
 		it('should use correct index for binaryPropertyName parameter', async () => {
@@ -615,26 +623,28 @@ describe('Telegram node', () => {
 		});
 
 		it('should fallback to binary fileName when additionalFields.fileName is empty', async () => {
-			executeFunctionsMock.getNodeParameter.mockImplementation((paramName, index) => {
-				switch (paramName) {
-					case 'resource':
-						return 'message';
-					case 'operation':
-						return 'sendPhoto';
-					case 'binaryData':
-						return true;
-					case 'chatId':
-						return index === 0 ? 'chat-id-0' : 'chat-id-1';
-					case 'binaryPropertyName':
-						return index === 0 ? 'data0' : 'data1';
-					case 'additionalFields.fileName':
-						return index === 0 ? '' : 'custom-name.jpg';
-					case 'additionalFields':
-						return {};
-					default:
-						return undefined;
-				}
-			});
+			executeFunctionsMock.getNodeParameter.mockImplementation(
+				(paramName: string, index?: number) => {
+					switch (paramName) {
+						case 'resource':
+							return 'message';
+						case 'operation':
+							return 'sendPhoto';
+						case 'binaryData':
+							return true;
+						case 'chatId':
+							return index === 0 ? 'chat-id-0' : 'chat-id-1';
+						case 'binaryPropertyName':
+							return index === 0 ? 'data0' : 'data1';
+						case 'additionalFields.fileName':
+							return index === 0 ? '' : 'custom-name.jpg';
+						case 'additionalFields':
+							return {};
+						default:
+							return undefined;
+					}
+				},
+			);
 
 			executeFunctionsMock.getInputData.mockReturnValue([
 				{

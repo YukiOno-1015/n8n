@@ -1,4 +1,4 @@
-import { mock, mockDeep } from 'jest-mock-extended';
+import { mock, mockDeep, type MockProxy } from 'jest-mock-extended';
 import type { IExecuteFunctions, NodeParameterValueType } from 'n8n-workflow';
 
 import { GoogleSheet } from '../../Google/Sheet/v2/helpers/GoogleSheet';
@@ -9,10 +9,12 @@ describe('Evaluation Trigger Node', () => {
 	const sheetName = 'Sheet5';
 	const spreadsheetId = '1oqFpPgEPTGDw7BPkp1SfPXq3Cb3Hyr1SROtf-Ec4zvA';
 
-	let mockExecuteFunctions = mock<IExecuteFunctions>({
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	} = mock<IExecuteFunctions>({
 		getInputData: jest.fn().mockReturnValue([{ json: {} }]),
 		getNode: jest.fn().mockReturnValue({ typeVersion: 4.6 }),
-	});
+	}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 
 	let mockDataTable: { getManyRowsAndCount: jest.Mock; getColumns: jest.Mock };
 
@@ -24,7 +26,7 @@ describe('Evaluation Trigger Node', () => {
 				mockExecuteFunctions = mock<IExecuteFunctions>({
 					getInputData: jest.fn().mockReturnValue([{ json: {} }]),
 					getNode: jest.fn().mockReturnValue({ typeVersion: 4.6 }),
-				});
+				}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 
 				jest.spyOn(GoogleSheet.prototype, 'spreadsheetGetSheet').mockImplementation(async () => {
 					return { sheetId: 1, title: sheetName };
@@ -36,7 +38,6 @@ describe('Evaluation Trigger Node', () => {
 						return [['Header1', 'Header2']];
 					} else if (range === `${sheetName}!2:1000`) {
 						return [
-							['Header1', 'Header2'],
 							['Value1', 'Value2'],
 							['Value3', 'Value4'],
 						];
@@ -88,7 +89,7 @@ describe('Evaluation Trigger Node', () => {
 								row_number: 2,
 								Header1: 'Value1',
 								Header2: 'Value2',
-								_rowsLeft: 2,
+								_rowsLeft: 1,
 							},
 							pairedItem: {
 								item: 0,
@@ -192,7 +193,7 @@ describe('Evaluation Trigger Node', () => {
 								row_number: 2,
 								Header1: 'Value1',
 								Header2: 'Value2',
-								_rowsLeft: 2,
+								_rowsLeft: 1,
 							},
 							pairedItem: {
 								item: 0,
@@ -250,7 +251,7 @@ describe('Evaluation Trigger Node', () => {
 				mockExecuteFunctions = mock<IExecuteFunctions>({
 					getInputData: jest.fn().mockReturnValue([{ json: {} }]),
 					getNode: jest.fn().mockReturnValue({ typeVersion: 4.6 }),
-				});
+				}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 
 				jest.spyOn(GoogleSheet.prototype, 'spreadsheetGetSheet').mockImplementation(async () => {
 					return { sheetId: 1, title: sheetName };
@@ -330,7 +331,7 @@ describe('Evaluation Trigger Node', () => {
 					helpers: {
 						getDataTableProxy: jest.fn().mockResolvedValue(mockDataTable),
 					},
-				});
+				}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 			});
 
 			test('should process rows sequentially with filters when dataset changes', async () => {
@@ -476,7 +477,7 @@ describe('Evaluation Trigger Node', () => {
 					helpers: {
 						getDataTableProxy: jest.fn().mockResolvedValue(mockDataTable),
 					},
-				});
+				}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 			});
 
 			test('should return the rows with limits applied, without filters', async () => {
@@ -587,7 +588,7 @@ describe('Evaluation Trigger Node', () => {
 
 				mockExecuteFunctions = mock<IExecuteFunctions>({
 					getNode: jest.fn().mockReturnValue({ typeVersion: 4.6 }),
-				});
+				}) as MockProxy<IExecuteFunctions> & { getNodeParameter: jest.Mock<any, any> };
 
 				jest.spyOn(GoogleSheet.prototype, 'spreadsheetGetSheet').mockImplementation(async () => {
 					return { sheetId: 1, title: sheetName };

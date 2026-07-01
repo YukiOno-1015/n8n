@@ -16,11 +16,15 @@ jest.mock('../../../../v2/transport', () => {
 
 describe('Test MicrosoftTeamsV2, chatMessage => sendAndWait', () => {
 	let microsoftTeamsV2: MicrosoftTeamsV2;
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		microsoftTeamsV2 = new MicrosoftTeamsV2(versionDescription);
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 	});
 
 	afterEach(() => {
@@ -40,7 +44,7 @@ describe('Test MicrosoftTeamsV2, chatMessage => sendAndWait', () => {
 			if (key === 'options.limitWaitTime.values') return {};
 		});
 
-		mockExecuteFunctions.putExecutionToWait.mockImplementation();
+		mockExecuteFunctions.putExecutionToWait.mockResolvedValue(undefined);
 		mockExecuteFunctions.getInputData.mockReturnValue(items);
 		mockExecuteFunctions.getInstanceId.mockReturnValue('instanceId');
 		mockExecuteFunctions.getNode.mockReturnValue(mock<INode>({ typeVersion: 2 }));

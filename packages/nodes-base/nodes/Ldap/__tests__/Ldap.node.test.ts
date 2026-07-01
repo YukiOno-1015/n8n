@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { Client } from 'ldapts';
 import type { IExecuteFunctions } from 'n8n-workflow';
 
@@ -11,7 +11,9 @@ jest.mock('../Helpers', () => ({
 }));
 
 describe('Ldap', () => {
-	const executeFunctions = mockDeep<IExecuteFunctions>();
+	const executeFunctions = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		jest.resetAllMocks();

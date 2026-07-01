@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { IExecuteFunctions, NodeExecutionWithMetadata } from 'n8n-workflow';
 import type PromiseFtp from 'promise-ftp';
 import * as ftpModule from 'promise-ftp';
@@ -11,7 +11,9 @@ jest.mock('promise-ftp');
 jest.mock('ssh2-sftp-client');
 
 describe('Ftp', () => {
-	const executeFunctions = mockDeep<IExecuteFunctions>();
+	const executeFunctions = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		jest.resetAllMocks();

@@ -9,6 +9,7 @@ module.exports = {
 	setupFilesAfterEnv: [
 		'<rootDir>/test/setup-test-folder.ts',
 		'<rootDir>/test/setup-mocks.ts',
+		'<rootDir>/test/setup-integration.ts',
 		'<rootDir>/test/extend-expect.ts',
 	],
 	coveragePathIgnorePatterns: ['/src/databases/migrations/'],

@@ -32,8 +32,10 @@ const DEFAULT_SETUP: RenderOptions<typeof SqlEditor> = {
 };
 
 async function focusEditor(container: Element) {
-	await waitFor(() => expect(container.querySelector('.cm-line')).toBeInTheDocument());
-	await userEvent.click(container.querySelector('.cm-line') as Element);
+	await waitFor(() =>
+		expect(container.querySelector('.cm-content[contenteditable="true"]')).toBeInTheDocument(),
+	);
+	(container.querySelector('.cm-content[contenteditable="true"]') as HTMLElement).focus();
 }
 
 const nodes = [
@@ -205,12 +207,13 @@ describe('SqlEditor.vue', () => {
 			...DEFAULT_SETUP,
 			props: {
 				...DEFAULT_SETUP.props,
-				modelValue: 'SELECT * FROM users',
+				modelValue: 'SELECT * FROM {{ $json.table }}',
 			},
 		});
 
 		// Does not hide output when clicking inside the output
 		await focusEditor(container);
+		await waitFor(() => expect(getByTestId(EXPRESSION_OUTPUT_TEST_ID)).toBeInTheDocument());
 		await userEvent.click(getByTestId(EXPRESSION_OUTPUT_TEST_ID));
 
 		await waitFor(() => expect(queryByTestId(EXPRESSION_OUTPUT_TEST_ID)).toBeInTheDocument());

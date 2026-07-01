@@ -39,7 +39,7 @@ describe('handleRequests', () => {
 				executionData: mock<IExecuteData>(),
 				runData: mock<IRunData>(),
 			}),
-		).toThrowError('Workflow does not contain a node with the name of "does not exist".');
+		).toThrow('Workflow does not contain a node with the name of "does not exist".');
 	});
 
 	test('merges agent input data with tool parameters for expression resolution', () => {

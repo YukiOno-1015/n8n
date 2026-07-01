@@ -4,10 +4,14 @@ import type { IExecuteFunctions } from 'n8n-workflow';
 import { getTarget, createSendAndWaitMessageBody } from '../../V2/GenericFunctions';
 
 describe('Slack Utility Functions', () => {
-	let mockExecuteFunctions: MockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: MockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
-		mockExecuteFunctions = mock<IExecuteFunctions>();
+		mockExecuteFunctions = mock<IExecuteFunctions>() as MockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockExecuteFunctions.getNode.mockReturnValue({ name: 'Slack', typeVersion: 1 } as any);
 		mockExecuteFunctions.getSignedResumeUrl.mockReturnValueOnce(
 			'http://localhost/waiting-webhook/nodeID?approved=true&signature=abc',

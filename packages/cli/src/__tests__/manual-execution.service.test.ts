@@ -391,7 +391,7 @@ describe('ManualExecutionService', () => {
 				runPartialWorkflow2: mockRunPartialWorkflow,
 			}));
 
-			await expect(
+			return expect(
 				async () =>
 					await manualExecutionService.runManually(data, workflow, additionalData, executionId),
 			).rejects.toThrowError(

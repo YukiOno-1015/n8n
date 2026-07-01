@@ -1,5 +1,5 @@
 import { NodeTestHarness } from '@nodes-testing/node-test-harness';
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import get from 'lodash/get';
 import { constructExecutionMetaData, returnJsonArray } from 'n8n-core';
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
@@ -119,7 +119,10 @@ describe('GraphQL Node', () => {
 
 	describe('error response', () => {
 		const createMockExecuteFunctions = (parameters: IDataObject) => {
-			const mockExecuteFunctions = mockDeep<IExecuteFunctions>();
+			const mockExecuteFunctions =
+				mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+					getNodeParameter: jest.Mock<any, any>;
+				};
 			mockExecuteFunctions.getNodeParameter.mockImplementation((parameter, _idx, fallbackValue) => {
 				return get(parameters, parameter) ?? fallbackValue;
 			});

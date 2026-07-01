@@ -14,9 +14,11 @@ import {
 	PROMPT_MFA_CODE_MODAL_KEY,
 } from '@/app/constants';
 import { useUIStore } from '@/app/stores/ui.store';
+import { useNodeTypesStore } from '@/app/stores/nodeTypes.store';
 import { useUsersStore } from '@/features/settings/users/users.store';
 import { useSettingsStore } from '@/app/stores/settings.store';
 import { useCloudPlanStore } from '@/app/stores/cloudPlan.store';
+import { useRootStore } from '@n8n/stores/useRootStore';
 import { createFormEventBus } from '@n8n/design-system/utils';
 import type { MfaModalEvents } from '../auth.eventBus';
 import { promptMfaCodeBus } from '../auth.eventBus';
@@ -24,6 +26,7 @@ import type { BaseTextKey } from '@n8n/i18n';
 import { useSSOStore } from '@/features/settings/sso/sso.store';
 import type { ConfirmPasswordModalEvents } from '../auth.eventBus';
 import { confirmPasswordEventBus } from '../auth.eventBus';
+import { saveLocaleOverride } from '@/app/utils/userLocale';
 
 import {
 	N8nAvatar,
@@ -66,6 +69,43 @@ const formInputs = ref<null | IFormInputs>(null);
 const formBus = createFormEventBus();
 const readyToSubmit = ref(false);
 const currentSelectedTheme = ref(useUIStore().theme);
+const rootStore = useRootStore();
+const nodeTypesStore = useNodeTypesStore();
+const currentSelectedLanguage = ref(rootStore.defaultLocale);
+const localeModules = import.meta.glob('@n8n/i18n/locales/*.json');
+const bundledLocales = Object.keys(localeModules)
+	.map((path) => path.match(/\/([^/]+)\.json$/)?.[1] ?? null)
+	.filter((locale): locale is string => locale !== null);
+
+const languageOptions = computed<Array<{ name: string; label: string }>>(() => {
+	const locales = new Set<string>([
+		'en',
+		settingsStore.settings.defaultLocale,
+		currentSelectedLanguage.value,
+		...bundledLocales,
+	]);
+
+	return [...locales]
+		.sort((a, b) => {
+			if (a === 'en') return -1;
+			if (b === 'en') return 1;
+			return a.localeCompare(b);
+		})
+		.map((locale) => {
+			let label = locale;
+
+			if (locale === 'en') {
+				label = i18n.baseText('settings.personal.language.option.en');
+			} else if (locale === 'ja') {
+				label = i18n.baseText('settings.personal.language.option.ja');
+			}
+
+			return {
+				name: locale,
+				label,
+			};
+		});
+});
 const themeOptions = ref<Array<{ name: ThemeOption; label: BaseTextKey }>>([
 	{
 		name: 'system',
@@ -119,7 +159,10 @@ const isMfaFeatureEnabled = computed((): boolean => {
 });
 
 const hasAnyPersonalisationChanges = computed((): boolean => {
-	return currentSelectedTheme.value !== uiStore.theme;
+	return (
+		currentSelectedTheme.value !== uiStore.theme ||
+		currentSelectedLanguage.value !== rootStore.defaultLocale
+	);
 });
 
 const hasAnyChanges = computed(() => {
@@ -283,6 +326,17 @@ async function updatePersonalisationSettings() {
 	}
 
 	uiStore.setTheme(currentSelectedTheme.value);
+
+	if (currentSelectedLanguage.value === rootStore.defaultLocale) {
+		return;
+	}
+
+	rootStore.setDefaultLocale(currentSelectedLanguage.value);
+	saveLocaleOverride(currentSelectedLanguage.value, settingsStore.settings.defaultLocale);
+
+	if (currentSelectedLanguage.value !== 'en') {
+		await nodeTypesStore.getNodeTranslationHeaders();
+	}
 }
 
 function onSaveClick() {
@@ -442,6 +496,25 @@ onBeforeUnmount(() => {
 					i18n.baseText('settings.personal.personalisation')
 				}}</N8nHeading>
 			</div>
+			<div class="mb-s">
+				<N8nInputLabel :label="i18n.baseText('settings.personal.language')">
+					<N8nSelect
+						v-model="currentSelectedLanguage"
+						:class="$style.themeSelect"
+						data-test-id="language-select"
+						size="small"
+						filterable
+					>
+						<N8nOption
+							v-for="item in languageOptions"
+							:key="item.name"
+							:label="item.label"
+							:value="item.name"
+						>
+						</N8nOption>
+					</N8nSelect>
+				</N8nInputLabel>
+			</div>
 			<div>
 				<N8nInputLabel :label="i18n.baseText('settings.personal.theme')">
 					<N8nSelect
@@ -488,6 +561,7 @@ onBeforeUnmount(() => {
 	display: flex;
 	align-items: center;
 	white-space: nowrap;
+
 	*:first-child {
 		flex-grow: 1;
 	}
@@ -526,6 +600,7 @@ onBeforeUnmount(() => {
 
 .button {
 	font-size: var(--spacing--xs);
+
 	> span {
 		font-weight: var(--font-weight--bold);
 	}

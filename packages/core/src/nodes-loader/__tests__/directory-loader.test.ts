@@ -44,7 +44,7 @@ describe('DirectoryLoader', () => {
 	});
 
 	const createNode = (name: string, credential?: string) =>
-		mock<INodeType>({
+		({
 			description: {
 				name,
 				version: 1,
@@ -53,7 +53,18 @@ describe('DirectoryLoader', () => {
 				credentials: credential ? [{ name: credential }] : [],
 				properties: [],
 			},
-		});
+		}) as unknown as INodeType;
+
+	const createVersionedNode = (
+		name: string,
+		nodeVersions: Record<number, INodeType>,
+		additionalDescription: Partial<IVersionedNodeType['description']> = {},
+	) =>
+		({
+			description: { name, ...additionalDescription },
+			currentVersion: Math.max(...Object.keys(nodeVersions).map(Number)),
+			nodeVersions,
+		}) as IVersionedNodeType;
 
 	const createCredential = (name: string) =>
 		mock<ICredentialType>({
@@ -67,7 +78,7 @@ describe('DirectoryLoader', () => {
 	let mockCredential1: ICredentialType, mockNode1: INodeType, mockNode2: INodeType;
 
 	beforeEach(() => {
-		mockFs.realpathSync.mockImplementation((path) => String(path));
+		mockFs.realpathSync.mockImplementation(((path) => String(path)) as typeof fs.realpathSync);
 		mockCredential1 = createCredential('credential1');
 		mockNode1 = createNode('node1', 'credential1');
 		mockNode2 = createNode('node2');
@@ -302,7 +313,7 @@ describe('DirectoryLoader', () => {
 		it('should only load included nodes when includeNodes is set', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -321,7 +332,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(directory, [], ['n8n-nodes-testing.node1']);
 			await loader.loadAll();
@@ -338,7 +349,7 @@ describe('DirectoryLoader', () => {
 		it('should load no nodes when includeNodes does not match any nodes', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -357,7 +368,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(
 				directory,
@@ -375,7 +386,7 @@ describe('DirectoryLoader', () => {
 		it('should not include nodes that are not in "includeNodes" even if they are from a different package', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -394,7 +405,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(
 				directory,
@@ -412,7 +423,7 @@ describe('DirectoryLoader', () => {
 		it('should exclude specified nodes when excludeNodes is set', async () => {
 			mockFs.readFileSync.calledWith(`${directory}/package.json`).mockReturnValue(packageJson);
 
-			mockFsPromises.readFile.mockImplementation(async (path) => {
+			mockFsPromises.readFile.mockImplementation((async (path) => {
 				if (typeof path !== 'string') throw new Error('Invalid path');
 
 				if (path.endsWith('known/nodes.json')) {
@@ -431,7 +442,7 @@ describe('DirectoryLoader', () => {
 					return JSON.stringify([]);
 				}
 				throw new Error('File not found');
-			});
+			}) as typeof fsPromises.readFile);
 
 			const loader = new LazyPackageDirectoryLoader(directory, ['n8n-nodes-testing.node1']);
 			await loader.loadAll();
@@ -507,14 +518,7 @@ describe('DirectoryLoader', () => {
 			nodeV1.description.version = 1;
 			nodeV2.description.version = 2;
 
-			const versionedNode = mock<IVersionedNodeType>({
-				description: { name: 'test', codex: {} },
-				currentVersion: 2,
-				nodeVersions: {
-					1: nodeV1,
-					2: nodeV2,
-				},
-			});
+			const versionedNode = createVersionedNode('test', { 1: nodeV1, 2: nodeV2 }, { codex: {} });
 
 			const result = loader.getVersionedNodeTypeAll(versionedNode);
 
@@ -551,14 +555,7 @@ describe('DirectoryLoader', () => {
 			const nodeV1 = createNode('test', 'cred1');
 			const nodeV2 = createNode('test', 'cred2');
 
-			const versionedNode = mock<IVersionedNodeType>({
-				description: { name: 'test' },
-				currentVersion: 2,
-				nodeVersions: {
-					1: nodeV1,
-					2: nodeV2,
-				},
-			});
+			const versionedNode = createVersionedNode('test', { 1: nodeV1, 2: nodeV2 });
 
 			const result = loader.getCredentialsForNode(versionedNode);
 
@@ -572,14 +569,7 @@ describe('DirectoryLoader', () => {
 			const nodeV1 = createNode('test', 'cred1');
 			const nodeV2 = createNode('test', 'cred1'); // Same credential
 
-			const versionedNode = mock<IVersionedNodeType>({
-				description: { name: 'test' },
-				currentVersion: 2,
-				nodeVersions: {
-					1: nodeV1,
-					2: nodeV2,
-				},
-			});
+			const versionedNode = createVersionedNode('test', { 1: nodeV1, 2: nodeV2 });
 
 			const result = loader.getCredentialsForNode(versionedNode);
 
@@ -836,14 +826,15 @@ describe('DirectoryLoader', () => {
 			nodeV1.description.version = 1;
 			nodeV2.description.version = 2;
 
-			const versionedNode = mock<IVersionedNodeType>({
-				description: { name: 'test', codex: {}, iconUrl: undefined, icon: undefined },
-				currentVersion: 2,
-				nodeVersions: {
-					1: nodeV1,
-					2: nodeV2,
+			const versionedNode = createVersionedNode(
+				'test',
+				{ 1: nodeV1, 2: nodeV2 },
+				{
+					codex: {},
+					iconUrl: undefined,
+					icon: undefined,
 				},
-			});
+			);
 
 			jest.spyOn(classLoader, 'loadClassInIsolation').mockReturnValueOnce(versionedNode);
 

@@ -13,15 +13,19 @@ import {
 
 import { RespondToWebhook } from '../RespondToWebhook.node';
 
+type GetNodeParameterMock = jest.Mock<unknown, [string, number?, unknown?, unknown?]>;
+
 describe('RespondToWebhook Node', () => {
 	let respondToWebhook: RespondToWebhook;
-	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions>;
+	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: GetNodeParameterMock;
+	};
 
 	beforeEach(() => {
 		respondToWebhook = new RespondToWebhook();
 		mockExecuteFunctions = mockDeep<IExecuteFunctions>({
 			helpers: { constructExecutionMetaData },
-		});
+		}) as DeepMockProxy<IExecuteFunctions> & { getNodeParameter: GetNodeParameterMock };
 	});
 
 	describe('chatTrigger response', () => {
@@ -36,7 +40,7 @@ describe('RespondToWebhook Node', () => {
 				}),
 			]);
 
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'responseBody') return { message: 'Hello World' };
 				if (paramName === 'options') return {};
@@ -58,7 +62,7 @@ describe('RespondToWebhook Node', () => {
 				}),
 			]);
 
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'text';
 				if (paramName === 'responseBody') return 'Just a string';
 				if (paramName === 'options') return {};
@@ -76,7 +80,7 @@ describe('RespondToWebhook Node', () => {
 				mock<NodeTypeAndVersion>({ type: CHAT_TRIGGER_NODE_TYPE, disabled: true }),
 			]);
 
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'responseBody') return { message: 'Hello World' };
 				if (paramName === 'options') return {};
@@ -129,7 +133,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'firstIncomingItem';
 				if (paramName === 'options')
 					return {
@@ -154,7 +158,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return {};
 				if (paramName === 'responseBody') return { response: true };
@@ -175,7 +179,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return {};
 				if (paramName === 'responseBody') return JSON.stringify({ response: true });
@@ -204,7 +208,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'jwt';
 				if (paramName === 'options') return {};
 				if (paramName === 'payload') return 'payload';
@@ -227,7 +231,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'text';
 				if (paramName === 'options') return {};
 				if (paramName === 'responseBody') return 'responseBody';
@@ -248,7 +252,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'redirect';
 				if (paramName === 'options') return {};
 				if (paramName === 'redirectURL') return 'https://n8n.io';
@@ -269,7 +273,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'allIncomingItems';
 				if (paramName === 'options') return {};
 			});
@@ -295,7 +299,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'binary';
 				if (paramName === 'options') return {};
 			});
@@ -319,7 +323,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'notSupportedRespondWith';
 				if (paramName === 'options') return {};
 			});
@@ -343,7 +347,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.getParentNodes.mockReturnValue([
 				mock<NodeTypeAndVersion>({ type: WAIT_NODE_TYPE }),
 			]);
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'redirect';
 				if (paramName === 'redirectURL') return 'n8n.io';
 				if (paramName === 'options') return {};
@@ -393,7 +397,7 @@ describe('RespondToWebhook Node', () => {
 			]);
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return { enableStreaming: true };
 				if (paramName === 'responseBody') return { response: true };
@@ -415,7 +419,7 @@ describe('RespondToWebhook Node', () => {
 			]);
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'text';
 				if (paramName === 'options') return { enableStreaming: true };
 				if (paramName === 'responseBody') return 'test response';
@@ -445,7 +449,7 @@ describe('RespondToWebhook Node', () => {
 			]);
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'jwt';
 				if (paramName === 'options') return { enableStreaming: true };
 				if (paramName === 'payload') return { test: 'payload' };
@@ -470,7 +474,7 @@ describe('RespondToWebhook Node', () => {
 			]);
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'firstIncomingItem';
 				if (paramName === 'options') return { enableStreaming: true };
 			});
@@ -492,7 +496,7 @@ describe('RespondToWebhook Node', () => {
 			]);
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'allIncomingItems';
 				if (paramName === 'options') return { enableStreaming: true };
 			});
@@ -515,7 +519,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
 			mockExecuteFunctions.sendResponse.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return { enableStreaming: false };
 				if (paramName === 'responseBody') return { response: true };
@@ -540,7 +544,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.isStreaming.mockReturnValue(false);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
 			mockExecuteFunctions.sendResponse.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return { enableStreaming: true };
 				if (paramName === 'responseBody') return { response: true };
@@ -568,7 +572,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
 			mockExecuteFunctions.sendResponse.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'binary';
 				if (paramName === 'options') return { enableStreaming: true };
 			});
@@ -595,7 +599,7 @@ describe('RespondToWebhook Node', () => {
 			mockExecuteFunctions.isStreaming.mockReturnValue(true);
 			mockExecuteFunctions.sendChunk.mockImplementation(() => {});
 			mockExecuteFunctions.sendResponse.mockImplementation(() => {});
-			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName) => {
+			mockExecuteFunctions.getNodeParameter.mockImplementation((paramName: string) => {
 				if (paramName === 'respondWith') return 'json';
 				if (paramName === 'options') return {};
 				if (paramName === 'responseBody') return { response: true };

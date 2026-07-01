@@ -178,7 +178,7 @@ async function main() {
 		});
 	}
 
-	const nodeVersionArgs = withBaseImage ? [`NODE_VERSION=${nodeVersion}`] : [];
+	const nodeVersionArgs = [`NODE_VERSION=${nodeVersion}`];
 
 	const n8nBuildTime = await buildDockerImage({
 		name: 'n8n',

@@ -1,4 +1,4 @@
-import { mockDeep } from 'jest-mock-extended';
+import { mockDeep, type DeepMockProxy } from 'jest-mock-extended';
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
@@ -14,11 +14,15 @@ describe('Xml Node - options validation', () => {
 	const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype'];
 
 	let xmlNode: Xml;
-	let mockExecuteFunctions: ReturnType<typeof mockDeep<IExecuteFunctions>>;
+	let mockExecuteFunctions: DeepMockProxy<IExecuteFunctions> & {
+		getNodeParameter: jest.Mock<any, any>;
+	};
 
 	beforeEach(() => {
 		xmlNode = new Xml();
-		mockExecuteFunctions = mockDeep<IExecuteFunctions>();
+		mockExecuteFunctions = mockDeep<IExecuteFunctions>() as DeepMockProxy<IExecuteFunctions> & {
+			getNodeParameter: jest.Mock<any, any>;
+		};
 		mockExecuteFunctions.getNode.mockReturnValue({
 			id: 'xml-node',
 			name: 'XML',
